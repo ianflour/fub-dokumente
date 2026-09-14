@@ -1,0 +1,14 @@
+# FOTOTAGE MUSTERSTADT 2026 — Beschilderung & Werkliste
+# Installation:  python3 -m venv .venv && ./.venv/bin/pip install -r requirements.txt
+#
+# Nur zwei echte Abhängigkeiten. Der Rest sind deren Unterpakete
+# und wird automatisch mitinstalliert (hier nur zur Dokumentation gelistet).
+
+openpyxl>=3.1,<4        # liest/schreibt die .xlsx-Dateien (Master, Werkmeldung)
+reportlab>=4.0,<5       # erzeugt die Druck-PDFs
+segno>=1.6,<2          # erzeugt die Instagram-QR-Codes (build_qr_codes.py, Wandschilder)
+
+# --- transitive Abhängigkeiten (kommen automatisch mit) ---
+# et-xmlfile             # von openpyxl
+# pillow                 # von reportlab (Bild-/Font-Handling)
+# segno hat keine Abhängigkeiten

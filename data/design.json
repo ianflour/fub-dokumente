@@ -1,0 +1,53 @@
+{
+  "_hinweis": "FOTOTAGE MUSTERSTADT 2026 — Designvorgaben für die automatische Schilderproduktion. Diese Datei füllt der/die Designer:in aus. Danach erzeugt build_druckdaten.py alle Schilder exakt in dieser Typografie. Aufruf: ./.venv/bin/python scripts/build_druckdaten.py --design data/design.json",
+
+  "_schriften_hinweis": "Keine Pfade hier eintragen: einfach Regular- und Bold-Schnitt (.ttf oder .otf, keine Variable Fonts) in den Ordner schriften/ legen — der Generator erkennt sie automatisch am Dateinamen ('bold' im Namen = Bold, alles andere = Regular). Es werden nur diese zwei Schnitte verwendet, auch für Titel & Co. — nirgends wird ein echter Kursivschnitt gerendert. Ohne Dateien in schriften/ nimmt der Generator die Standardschrift. Diese Schrift gilt für ALLE erzeugten PDFs: Wandschilder, Werkliste, Rückseitenetiketten, Versicherungsliste und Instagram-Wand.",
+
+  "_farben_hinweis": "Hex-Werte, gelten für alle PDFs (Wandschilder, Werkliste, Instagram-Wand ...). text = Name und Titel, sekundaer = technische Angaben, tertiaer = Werknummer und Fußzeile, linie = Trennstrich, signal = verkauft/reserviert in der Werkliste.",
+  "farben": {
+    "text":      "#000000",
+    "sekundaer": "#616161",
+    "tertiaer":  "#999999",
+    "linie":     "#C7C7C7",
+    "signal":    "#B31F1F"
+  },
+
+  "wandschild": {
+    "a7": {
+      "_hinweis": "Kleines Schild. 2 Spalten × 4 Zeilen auf A4 hoch = 8 Stück pro Bogen.",
+      "breite_mm": 100,
+      "hoehe_mm": 70,
+      "rand_mm": 7.0,
+      "qr_mm": 12,
+      "spalten": 2,
+      "zeilen": 4,
+      "bogen": "A4",
+      "schriftgroessen_pt": {
+        "nummer": 7,
+        "kuenstlerin": 11,
+        "titel": 13,
+        "ortjahr": 9.5,
+        "technik": 8.3,
+        "hinweis": 7.2
+      }
+    },
+    "a6": {
+      "_hinweis": "Großes, barrierearmes Schild. 2 Spalten × 2 Zeilen auf A4 QUER = 4 Stück pro Bogen.",
+      "breite_mm": 140,
+      "hoehe_mm": 100,
+      "rand_mm": 12.0,
+      "qr_mm": 17,
+      "spalten": 2,
+      "zeilen": 2,
+      "bogen": "A4quer",
+      "schriftgroessen_pt": {
+        "nummer": 8.5,
+        "kuenstlerin": 15,
+        "titel": 18,
+        "ortjahr": 13,
+        "technik": 11,
+        "hinweis": 9.5
+      }
+    }
+  }
+}

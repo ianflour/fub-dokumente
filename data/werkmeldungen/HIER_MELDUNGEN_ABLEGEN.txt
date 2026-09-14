@@ -1,0 +1,31 @@
+Ausgefüllte Werkmeldung hier ablegen
+====================================
+
+Dieser Ordner ist am Anfang leer.
+
+Neuer Ablauf (gemeinsame Datei)
+-------------------------------
+Die Werkmeldung ist EINE Datei für alle. Sie liegt auf Google Drive und
+wird von allen Teilnehmenden gleichzeitig ausgefüllt (Blatt „Werke“,
+eine Zeile pro Werk, Name links über das Dropdown wählen).
+
+1. FUB2026_Werkmeldung_VORLAGE.xlsx auf Google Drive hochladen bzw. als
+   Google Tabelle öffnen und den Link an alle Teilnehmenden geben
+   (Freigabe: „Jeder mit Link – Bearbeiter“).
+2. Zum Stichtag die Tabelle herunterladen:
+   in Google Tabellen  Datei > Herunterladen > Microsoft Excel (.xlsx)
+   und die Datei in genau diesen Ordner legen (Name egal, z. B.
+   Werkmeldung_2026-08-22.xlsx).
+3. Einsammeln:
+
+     ./.venv/bin/python import_werkmeldungen.py --ordner werkmeldungen --probe   # erst ansehen
+     ./.venv/bin/python import_werkmeldungen.py --ordner werkmeldungen           # dann in den Master schreiben
+
+Es dürfen auch mehrere Exporte hier liegen (z. B. ein Zwischenstand und
+der finale) — schon importierte Werke werden übersprungen.
+
+Der Master wird vor jedem Schreibvorgang automatisch gesichert als
+FUB2026_Werkdaten_MASTER_backup_JJJJMMTT-HHMM.xlsx
+
+Kontaktdaten stehen im Blatt „Kontakte“ derselben Datei und wandern beim
+Import ins Master-Blatt „Teilnehmende“.

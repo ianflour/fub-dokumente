@@ -1,0 +1,31 @@
+Schriften für die Schilderproduktion
+====================================
+
+In diesen Ordner gehören zwei Schriftschnitte als statische .ttf oder .otf
+(keine Variable Fonts):
+
+    ein Regular-Schnitt
+    ein Bold-Schnitt
+
+Die Dateinamen sind egal — der Generator erkennt sie automatisch: Eine
+Datei, deren Name "bold" oder "fett" enthält, ist der Bold-Schnitt; alles
+andere (ohne "italic"/"oblique"/"kursiv" im Namen) ist der Regular-Schnitt.
+Nichts in design.json eintragen, nichts umbenennen.
+
+Es werden bewusst nur diese zwei Schnitte verwendet — auch für Titel & Co.,
+die sonst kursiv gesetzt wären. Ein dritter/vierter Schnitt (Italic, Bold
+Italic) darf im Ordner liegen, wird aber ignoriert.
+
+Ohne Dateien hier läuft der Generator trotzdem: er nimmt dann Helvetica
+bzw. eine metrisch zu Arial identische Systemschrift.
+
+Gilt nur für die PDFs in ausgabe/ (fub_generator.py). Die Excel-Dateien
+(FUB2026_Werkdaten_MASTER.xlsx, FUB2026_Werkmeldung_VORLAGE.xlsx) tragen
+nur den Font-NAMEN "Arial" ein und sind von diesem Ordner unabhängig.
+
+--------------------------------------------------------------------------
+Nur falls build_designer_pdf.py neu gebaut werden muss (Notfall):
+Dieses Skript braucht die "Liberation Sans"-Schriften. Unter macOS sind
+die nicht vorinstalliert. Entweder Liberation-TTFs hier ablegen und das
+Skript darauf zeigen lassen, oder das bereits fertige
+HANDBUCH_fuer_Designer.pdf einfach weiterverwenden.

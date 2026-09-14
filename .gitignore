@@ -1,0 +1,26 @@
+# Python
+.venv/
+venv/
+__pycache__/
+*.py[cod]
+
+# Alles Erzeugte — wird aus scripts/ + data/ neu gebaut
+# (Master, Werkmeldung, alle PDFs, QR-Codes, Backups, upload/)
+output/
+
+# aus Google Drive geladene, ausgefüllte Werkmeldung(en)
+data/werkmeldungen/*.xlsx
+data/werkmeldung_alt/*.xlsx
+
+# vom Designer gelieferte Schriften bleiben lokal
+assets/schriften/*.ttf
+assets/schriften/*.otf
+assets/schriften/*.ttc
+
+# macOS
+.DS_Store
+
+# Editor-/Tool-Metadaten
+.claude/
+.vscode/
+.idea/
