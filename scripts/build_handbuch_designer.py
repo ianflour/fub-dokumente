@@ -350,7 +350,7 @@ def inhalt():
         "Den Rest übernimmt ein kleines Programm bei uns.",
         "Der Grund ist nicht Bequemlichkeit, sondern Verlässlichkeit: Das Programm misst jeden "
         "Text und bricht ihn um. Kein Titel läuft aus dem Schild. Und wenn zwei Tage vor "
-        "Aufbau noch ein Preis oder ein Titel geändert wird, kostet das keinen Nachmittag, "
+        "der Eröffnung noch ein Preis oder ein Titel geändert wird, kostet das keinen Nachmittag, "
         "sondern einen Klick."))
 
     a(Spacer(1, 4 * mm))
@@ -603,18 +603,6 @@ def inhalt():
     a(P("Rückseitenetiketten, 90 × 45 mm, die vor dem Aufhängen auf die Rahmenrückseite "
         "geklebt werden. Reine Gebrauchsgrafik, sieht kein Besucher. Die kannst du gestalten, "
         "musst du aber nicht — sag einfach Bescheid.", "p"))
-
-    a(Spacer(1, 5 * mm))
-    a(P("Zeitplan", "h2"))
-    a(tabelle([
-        ["Wann", "Was"],
-        ["so früh wie möglich", "Entwurf für ein Schild, als PDF zur Abstimmung"],
-        ["nach Freigabe", "design.json ausgefüllt und Schriften geliefert (Weg A), "
-                          "oder InDesign-Datei (Weg B)"],
-        ["ca. 8. September", "Wir drucken und schneiden. Ab hier sind Änderungen teuer."],
-        ["11. September", "Aufbautag"],
-        ["12. September", "Vernissage"],
-    ], [36 * mm, W - ML - MR - 36 * mm]))
 
     a(Spacer(1, 4 * mm))
 

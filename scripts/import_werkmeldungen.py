@@ -18,7 +18,7 @@ die Nummern final. Bereits gedruckte Wandschilder mit einer älteren Nummer
 stimmen danach nicht mehr überein.
 
 Es können auch mehrere Dateien im Ordner liegen (z. B. eine pro
-Google-Drive-Export) — sie werden alle gelesen.
+Export) — sie werden alle gelesen.
 
 KEINE Dublettenprüfung: jede Meldungszeile wird als eigenes Werk angehängt,
 auch wenn Künstler:in, Titel, Maße, Rahmen und Preis exakt einer bereits
@@ -31,11 +31,11 @@ Aufruf
 ------
   ./.venv/bin/python scripts/import_werkmeldungen.py
   ./.venv/bin/python scripts/import_werkmeldungen.py --probe   # nur anzeigen
-  (oder über  scripts/fub.py , Menüpunkt 3)
+  (oder über  scripts/menue.py , Menüpunkt 3)
 
 Ablage der ausgefüllten Werkmeldung(en): data/werkmeldungen/
 Der Master wird vor jedem Schreibvorgang automatisch gesichert als
-output/FUB2026_Werkdaten_MASTER_backup_JJJJMMTT-HHMM.xlsx
+output/Werkdaten_MASTER_backup_JJJJMMTT-HHMM.xlsx
 """
 
 import argparse
@@ -51,7 +51,7 @@ from openpyxl.styles import Font, Border, Side
 import _pfade as P
 import _saal_listen as SL
 
-MASTER = P.output("FUB2026_Werkdaten_MASTER.xlsx")
+MASTER = P.output("Werkdaten_MASTER.xlsx")
 thin = Side(style="thin", color="BFBFBF")
 BORDER = Border(left=thin, right=thin, top=thin, bottom=thin)
 

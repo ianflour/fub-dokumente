@@ -300,7 +300,7 @@ def inhalt():
         ["Kürzel", "Wer", "Aufgabe"],
         ["<b>ORG</b>", "Florian / Kernteam", "pflegt die Daten, erzeugt und druckt alle PDFs"],
         ["<b>FOTO</b>", "Teilnehmende Fotograf:innen",
-         "tragen ihre Werkdaten in die gemeinsame Google-Tabelle ein"],
+         "tragen ihre Werkdaten in die gemeinsame Tabelle ein"],
         ["<b>DES</b>", "Gestaltung", "gestaltet ein Musterschild, liefert Werte und Schriften"],
         ["<b>PRINT</b>", "Copyshop oder Bürodrucker", "druckt die fertigen PDFs"],
         ["<b>THEKE</b>", "Aufsicht während der Ausstellung",
@@ -315,13 +315,13 @@ def inhalt():
     a(tabelle([
         ["Datei", "Rolle", "Programm auf dem Mac", "Was damit passiert"],
 
-        ["<b>output/FUB2026_Werkdaten_MASTER.xlsx</b>", "ORG", "<b>Numbers</b>",
+        ["<b>output/Werkdaten_MASTER.xlsx</b>", "ORG", "<b>Numbers</b>",
          "Die einzige Datenquelle. Werke eintragen, Preise und Status pflegen, "
          "Wand und Position vergeben."],
 
-        ["<b>output/FUB2026_Werkmeldung_VORLAGE.xlsx</b>", "ORG → FOTO",
-         "<b>Google Drive</b>",
-         "ORG lädt sie als Google Tabelle hoch und teilt den Link. FOTO trägt pro Werk "
+        ["<b>output/Werkmeldung_VORLAGE.xlsx</b>", "ORG → FOTO",
+         "<b>Numbers</b>",
+         "ORG gibt sie als gemeinsame Datei an alle weiter. FOTO trägt pro Werk "
          "eine Zeile ein und wählt den eigenen Namen. Blätter: Werke, Kontakte, Preishilfe "
          "(Preisrechner), Saal Digital, Glossar. Kein Zurückschicken."],
 
@@ -330,7 +330,7 @@ def inhalt():
          "scripts/build_qr_codes.py neu laufen lassen."],
 
         ["<b>data/werkmeldungen/*.xlsx</b>", "ORG", "<b>Finder</b>",
-         "Die aus Google Drive geladene Excel-Fassung. Nur ablegen, nicht öffnen — "
+         "Die ausgefüllte Excel-Fassung der Werkmeldung. Nur ablegen, nicht öffnen — "
          "das Importskript liest sie."],
 
         ["<b>data/design.json</b>", "DES", "<b>TextEdit</b>",
@@ -414,7 +414,7 @@ def inhalt():
     a(hinweis(
         "4 — Der Master ist die einzige Wahrheit",
         "Preis, Titel oder Status ändern sich ausschließlich in "
-        "<b>output/FUB2026_Werkdaten_MASTER.xlsx</b>. Danach den Generator neu laufen lassen. "
+        "<b>output/Werkdaten_MASTER.xlsx</b>. Danach den Generator neu laufen lassen. "
         "Niemals im fertigen PDF nachbessern und niemals eine Kopie der Tabelle anlegen, "
         "in der „nur schnell etwas“ geändert wird.",
         art="warn"))
@@ -426,12 +426,12 @@ def inhalt():
 
     a(P("Master bearbeiten und wieder abspeichern", "h3"))
     for n, t in [
-        ("1.", "Doppelklick auf <b>output/FUB2026_Werkdaten_MASTER.xlsx</b>. Numbers zeigt beim "
+        ("1.", "Doppelklick auf <b>output/Werkdaten_MASTER.xlsx</b>. Numbers zeigt beim "
                "Öffnen eine Warnung über Änderungen beim Import — das ist normal, wegklicken."),
         ("2.", "Im Blatt <b>Werke</b> arbeiten. Blaue Schrift bedeutet Eingabefeld, "
                "graue Felder sind Formeln und bleiben unberührt."),
         ("3.", "Zum Sichern: <b>Ablage &gt; Exportieren &gt; Excel</b>. Als Dateiname wieder "
-               "genau <b>output/FUB2026_Werkdaten_MASTER.xlsx</b> wählen und die alte Datei ersetzen."),
+               "genau <b>output/Werkdaten_MASTER.xlsx</b> wählen und die alte Datei ersetzen."),
     ]:
         a(STEP(n, t))
 
@@ -450,15 +450,14 @@ def inhalt():
     a(hinweis(
         "Blattschutz in der Werkmeldung",
         "Kopfzeilen, Dropdown-Quellen und die Nachschlage-Blätter der Werkmeldung sind "
-        "gesperrt (Passwort <b>fub2026</b>, dokumentiert in <b>scripts/build_werkmeldung.py</b>). "
+        "gesperrt (Passwort <b>werkmeldung</b>, dokumentiert in <b>scripts/build_werkmeldung.py</b>). "
         "Das ist ein Schutz gegen versehentliches Verändern in der von allen gemeinsam "
         "bearbeiteten Datei, kein Sicherheitsmerkmal.",
-        "Öffnet ORG die Datei einmal in Google Tabellen, sollte unter <b>Daten &gt; Blätter "
-        "und Bereiche schützen</b> geprüft werden, ob die Sperren korrekt übernommen wurden — "
-        "die Übersetzung aus dem Excel-Format ist nicht immer exakt. Dabei auch kurz testen, "
-        "ob die Dropdowns in einer leeren „Werke“-Zeile erscheinen: Das Quellblatt <b>Listen</b> "
-        "ist bewusst sichtbar (ganz hinten), weil Google Sheets Dropdowns von ausgeblendeten "
-        "Blättern beim Import verwirft.",
+        "Öffnet ORG die Datei im verwendeten Programm, sollte geprüft werden, ob die "
+        "Sperren korrekt übernommen wurden — die Übersetzung aus dem Excel-Format ist nicht "
+        "immer exakt. Dabei auch kurz testen, ob die Dropdowns in einer leeren „Werke“-Zeile "
+        "erscheinen: Das Quellblatt <b>Listen</b> ist bewusst sichtbar (ganz hinten), weil "
+        "manche Programme Dropdowns von ausgeblendeten Blättern beim Öffnen verwerfen.",
         art="ok"))
 
     a(Spacer(1, 3 * mm))
@@ -630,11 +629,11 @@ def inhalt():
     a(P("Finder und Mail — der Rest", "h2"))
 
     a(P("Ordner verschicken", "h3"))
-    a(P("Für die Gestaltung: den Ordner <b>upload/</b> auf Google Drive hochladen (oder "
-        "rechtsklick &gt; <b>Komprimieren</b> und die .zip per Mail). "
-        "Für die Teilnehmenden: <b>output/FUB2026_Werkmeldung_VORLAGE.xlsx</b> als Google Tabelle "
-        "öffnen und den Link mit „Jeder mit Link – Bearbeiter“ teilen — nicht die Datei "
-        "selbst verschicken.", "p"))
+    a(P("Für die Gestaltung: <b>output/HANDBUCH_DESIGNER.pdf</b>, <b>data/design.json</b> "
+        "und die Beispiel-PDFs aus <b>output/ausgabe/</b> zusammen in einen Ordner legen, "
+        "rechtsklick &gt; <b>Komprimieren</b> und die .zip per Mail schicken. "
+        "Für die Teilnehmenden: <b>output/Werkmeldung_VORLAGE.xlsx</b> als gemeinsam "
+        "bearbeitbare Datei weitergeben.", "p"))
 
     a(P("Standardprogramm dauerhaft festlegen", "h3"))
     a(P("Damit .json-Dateien künftig nicht versehentlich in einem anderen Programm landen: "
@@ -656,16 +655,16 @@ def inhalt():
     a(P("Der typische Tag, in Reihenfolge", "h2"))
     a(tabelle([
         ["Wann", "Wer", "Was", "Womit"],
-        ["Vorbereitung", "ORG", "Werkmeldung auf Google Drive teilen, QR-Codes prüfen",
-         "Google Drive, Terminal"],
-        ["laufend", "FOTO", "Werke in die gemeinsame Tabelle eintragen", "Google Tabellen"],
-        ["nach Frist", "ORG", "Tabelle als Excel laden, in data/werkmeldungen legen", "Google Drive, Finder"],
+        ["Vorbereitung", "ORG", "Werkmeldung an alle weitergeben, QR-Codes prüfen",
+         "Finder, Terminal"],
+        ["laufend", "FOTO", "Werke in die gemeinsame Tabelle eintragen", "Numbers, Excel"],
+        ["nach Frist", "ORG", "Tabelle als Excel exportieren, in data/werkmeldungen legen", "Finder"],
         ["nach Frist", "ORG", "Import zur Probe, dann scharf", "Terminal"],
         ["nach Frist", "ORG", "Daten sichten, Wand und Position vergeben", "Numbers"],
         ["parallel", "DES", "Musterschild gestalten, data/design.json ausfüllen", "TextEdit"],
         ["nach Hängeplan", "ORG", "Alle PDFs erzeugen", "Terminal"],
-        ["vor Aufbau", "ORG", "Schilder und Etiketten drucken, Probe messen", "Vorschau"],
-        ["Aufbautag", "ORG", "Werkliste final drucken", "Vorschau"],
+        ["vor der Hängung", "ORG", "Schilder und Etiketten drucken, Probe messen", "Vorschau"],
+        ["nach der Hängung", "ORG", "Werkliste final drucken", "Vorschau"],
         ["Ausstellung", "THEKE", "Verkäufe notieren", "Papier"],
         ["Ausstellung", "ORG", "Status pflegen, Werkliste nachdrucken",
          "Numbers, Terminal, Vorschau"],

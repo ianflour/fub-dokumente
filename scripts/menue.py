@@ -6,9 +6,9 @@ FOTOTAGE MUSTERSTADT 2026 — Haupt-Menü
 Ein Startpunkt für alle Werkzeuge. Ruft jedes Script als eigenen Prozess auf,
 mit demselben Python wie dieses hier.
 
-    ./.venv/bin/python scripts/fub.py            # Menü anzeigen
-    ./.venv/bin/python scripts/fub.py 4          # direkt Punkt 4 (Schichtplan)
-    ./.venv/bin/python scripts/fub.py 3 --probe  # Punkt 3, Argumente durchreichen
+    ./.venv/bin/python scripts/menue.py            # Menü anzeigen
+    ./.venv/bin/python scripts/menue.py 4          # direkt Punkt 4 (Schichtplan)
+    ./.venv/bin/python scripts/menue.py 3 --probe  # Punkt 3, Argumente durchreichen
 
 Pfade sind komplett dynamisch: das Script-Verzeichnis wird aus __file__
 bestimmt, alles Weitere über _pfade.py. Egal, aus welchem Ordner gestartet.
@@ -42,13 +42,15 @@ AKTIONEN = [
                          "build_handbuch_zustaendigkeiten.py"],
      "HANDBUCH_DESIGNER.pdf + HANDBUCH_ZUSTAENDIGKEITEN.pdf"),
     ("8", "Master-Tabelle neu", ["build_master.py"],
-     "output/FUB2026_Werkdaten_MASTER.xlsx (überschreibt!)"),
+     "output/Werkdaten_MASTER.xlsx (überschreibt!)"),
     ("9", "Werkmeldung-Vorlage neu", ["build_werkmeldung.py"],
-     "output/FUB2026_Werkmeldung_VORLAGE.xlsx"),
+     "output/Werkmeldung_VORLAGE.xlsx"),
     ("10", "QR-Codes", ["build_qr_codes.py"],
      "output/qr-codes/ aus data/instagram.csv"),
     ("11", "Werkmeldung migrieren", ["migrate_werkmeldung.py"],
      "alte Werkmeldung aus data/werkmeldung_alt/ in die neue Vorlage"),
+    ("12", "Beispiel-Werkmeldung", ["build_beispiel_werkmeldung.py"],
+     "data/beispiele/Werkmeldung_BEISPIEL.xlsx (ausgefüllt, zum Testen)"),
 ]
 NACH_TASTE = {t: a for a in AKTIONEN for t in (a[0],)}
 

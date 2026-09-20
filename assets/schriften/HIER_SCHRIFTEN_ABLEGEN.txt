@@ -19,8 +19,8 @@ Italic) darf im Ordner liegen, wird aber ignoriert.
 Ohne Dateien hier läuft der Generator trotzdem: er nimmt dann Helvetica
 bzw. eine metrisch zu Arial identische Systemschrift.
 
-Gilt nur für die PDFs in ausgabe/ (fub_generator.py). Die Excel-Dateien
-(FUB2026_Werkdaten_MASTER.xlsx, FUB2026_Werkmeldung_VORLAGE.xlsx) tragen
+Gilt nur für die PDFs in ausgabe/ (build_druckdaten.py). Die Excel-Dateien
+(Werkdaten_MASTER.xlsx, Werkmeldung_VORLAGE.xlsx) tragen
 nur den Font-NAMEN "Arial" ein und sind von diesem Ordner unabhängig.
 
 --------------------------------------------------------------------------

@@ -19,8 +19,8 @@ Kunstgegenstände sind nach § 9 Abs. 7 PAngV von der Preisauszeichnungspflicht 
 
 | Datei | Rolle | Wer arbeitet damit |
 |---|---|---|
-| `output/FUB2026_Werkdaten_MASTER.xlsx` | **Einzige Datenquelle.** Alle Werkdaten. | Kernteam |
-| `output/FUB2026_Werkmeldung_VORLAGE.xlsx` | **gemeinsames** Formular auf Google Drive (Blätter: Werke · Kontakte · Preishilfe · Saal Digital · Glossar) | geht als Link raus |
+| `output/Werkdaten_MASTER.xlsx` | **Einzige Datenquelle.** Alle Werkdaten. | Kernteam |
+| `output/Werkmeldung_VORLAGE.xlsx` | **gemeinsames** Formular (Blätter: Werke · Kontakte · Preishilfe · Saal Digital · Glossar) | geht an alle Teilnehmenden |
 | `data/teilnehmende.txt` | Namensliste aller Ausstellenden — speist das „Künstler:in“-Dropdown | Kernteam |
 | `data/instagram.csv` | Name → Instagram-Handle; Quelle für die QR-Codes | Kernteam |
 | `output/qr-codes/*.svg` + `output/qr-codes/png/` | fertige QR-Codes je Person (SVG für Design, PNG für Druck) | Design / Kernteam |
@@ -62,25 +62,25 @@ Wenn die vier PDFs in `output/ausgabe/` landen, ist alles bereit. Der Generator 
 
 ### Schritt 1 — Werkmeldung teilen *(Frist bis 22. August)*
 
-`output/FUB2026_Werkmeldung_VORLAGE.xlsx` auf Google Drive hochladen (bzw. als Google Tabelle öffnen) und den Link mit **„Jeder mit Link – Bearbeiter“** an alle Teilnehmenden geben. Textbaustein für die Mail steht in Abschnitt 9.
+`output/Werkmeldung_VORLAGE.xlsx` als gemeinsam bearbeitbare Datei an alle Teilnehmenden geben.
 
 Es ist **eine gemeinsame Datei**: Alle tragen im Blatt „Werke“ ihre Werke ein — eine Zeile pro Bild, links unter „Künstler:in“ den eigenen Namen aus dem Dropdown. Kontaktdaten einmalig im Blatt „Kontakte“ (Name steht schon da).
 
-**Blattschutz.** Kopfzeilen, das Quellblatt „Listen“ (sichtbar, ganz hinten) und die Nachschlage-Blätter (Saal Digital, Glossar, die Formeln in Preishilfe) sind gesperrt — nur die Eingabezellen (blaue Schrift / gelbe Felder) bleiben editierbar. Das ist kein Sicherheitsmerkmal, sondern ein Schutz gegen versehentliches Löschen in der von 27 Personen gleichzeitig bearbeiteten Datei. Passwort zum Aufheben (nur falls im Kernteam wirklich mal eine Struktur geändert werden muss): `fub2026` (in `scripts/build_werkmeldung.py`, Konstante `PASSWORT`).
+**Blattschutz.** Kopfzeilen, das Quellblatt „Listen“ (sichtbar, ganz hinten) und die Nachschlage-Blätter (Saal Digital, Glossar, die Formeln in Preishilfe) sind gesperrt — nur die Eingabezellen (blaue Schrift / gelbe Felder) bleiben editierbar. Das ist kein Sicherheitsmerkmal, sondern ein Schutz gegen versehentliches Löschen in der von 27 Personen gleichzeitig bearbeiteten Datei. Passwort zum Aufheben (nur falls im Kernteam wirklich mal eine Struktur geändert werden muss): `werkmeldung` (in `scripts/build_werkmeldung.py`, Konstante `PASSWORT`).
 
-**Dropdowns.** Die Auswahllisten für Künstler:in, Druckverfahren und Papier ziehen ihre Werte aus dem Blatt „Listen“ — deshalb ist das Blatt **sichtbar** (nicht ausgeblendet): Google Sheets übernimmt Dropdowns, die auf ein verstecktes Blatt zeigen, beim Import nicht zuverlässig. Prüfe nach dem Öffnen in Google Tabellen kurz, ob in einer leeren „Werke“-Zeile die Dropdowns erscheinen (Künstler:in, Druckverfahren, Papier, Maße, Rahmen im Preis, Verkäuflich). Fehlt einer, in Google unter **Daten > Datenvalidierung** neu setzen — die Werte stehen im Blatt „Listen“.
+**Dropdowns.** Die Auswahllisten für Künstler:in, Druckverfahren und Papier ziehen ihre Werte aus dem Blatt „Listen“ — deshalb ist das Blatt **sichtbar** (nicht ausgeblendet): Manche Tabellenprogramme übernehmen Dropdowns, die auf ein verstecktes Blatt zeigen, beim Öffnen nicht zuverlässig. Prüfe nach dem Öffnen kurz, ob in einer leeren „Werke“-Zeile die Dropdowns erscheinen (Künstler:in, Druckverfahren, Papier, Maße, Rahmen im Preis, Verkäuflich). Fehlt einer, in der Datenvalidierung des Programms neu setzen — die Werte stehen im Blatt „Listen“.
 
-Öffne die Datei einmal selbst in Google Tabellen und prüfe unter **Daten > Blätter und Bereiche schützen**, ob die Sperren korrekt übernommen wurden — Google Sheets übersetzt den Excel-Blattschutz beim Import, aber nicht immer 1:1. Passe dort bei Bedarf nach (z. B. „Nur du kannst diesen Bereich bearbeiten“ für die gesperrten Bereiche, alle anderen Teilnehmenden bleiben Bearbeiter der restlichen Tabelle).
+Prüfe außerdem, ob die Sperren (Blattschutz) im verwendeten Programm korrekt angekommen sind — der Excel-Blattschutz wird nicht von jedem Programm 1:1 übernommen.
 
-Vor dem Teilen prüfen, dass alle QR-Codes da sind:
+Vor dem Weitergeben prüfen, dass alle QR-Codes da sind:
 
 ```bash
 ./.venv/bin/python scripts/build_qr_codes.py            # meldet fehlende Instagram-Links
 ```
 
-Setze eine **harte Frist drei Wochen vor Aufbau**. Erfahrungsgemäß liefert ein Drittel pünktlich, ein Drittel nach der ersten Erinnerung, ein Drittel erst, wenn du anrufst. Plane die Erinnerung als Kalendereintrag ein, nicht als guten Vorsatz.
+Setze eine **harte Frist mit ausreichend Vorlauf vor dem Druck**. Erfahrungsgemäß liefert ein Drittel pünktlich, ein Drittel nach der ersten Erinnerung, ein Drittel erst, wenn du anrufst. Plane die Erinnerung als Kalendereintrag ein, nicht als guten Vorsatz.
 
-**Wenn die Vorlage nach dem Teilen noch geändert werden muss** (neue Dropdown-Werte, ein behobener Fehler …) und in der geteilten Datei schon Werke drinstehen: nicht die Spalten von Hand nachziehen. Stattdessen die ausgefüllte Datei von Google Drive laden (`Datei > Herunterladen > Microsoft Excel`), in den Ordner **`data/werkmeldung_alt/`** legen, dann
+**Wenn die Vorlage nach dem Weitergeben noch geändert werden muss** (neue Dropdown-Werte, ein behobener Fehler …) und in der gemeinsamen Datei schon Werke drinstehen: nicht die Spalten von Hand nachziehen. Stattdessen die ausgefüllte Datei als Excel (.xlsx) exportieren, in den Ordner **`data/werkmeldung_alt/`** legen, dann
 
 ```bash
 ./.venv/bin/python scripts/build_werkmeldung.py            # frische Vorlage
@@ -88,11 +88,11 @@ Setze eine **harte Frist drei Wochen vor Aufbau**. Erfahrungsgemäß liefert ein
 ./.venv/bin/python scripts/migrate_werkmeldung.py          # dann schreiben
 ```
 
-Das schreibt `output/FUB2026_Werkmeldung_UEBERTRAGEN.xlsx`: alle ausgefüllten Zeilen aus „Werke“ und die E-Mail/Telefon-Angaben aus „Kontakte“, Spalten **nach Name** zugeordnet (umbenannte oder neue Spalten stören nicht). Dropdowns, Formeln und Blattschutz kommen aus der frischen Vorlage. Kurz gegenprüfen, dann auf Google Drive hochladen und die alte Datei ersetzen. **Wichtig:** Während des Umstiegs darf niemand mehr in der alten Datei tippen.
+Das schreibt `output/Werkmeldung_UEBERTRAGEN.xlsx`: alle ausgefüllten Zeilen aus „Werke“ und die E-Mail/Telefon-Angaben aus „Kontakte“, Spalten **nach Name** zugeordnet (umbenannte oder neue Spalten stören nicht). Dropdowns, Formeln und Blattschutz kommen aus der frischen Vorlage. Kurz gegenprüfen, dann als neue gemeinsame Datei bereitstellen und die alte ersetzen. **Wichtig:** Während des Umstiegs darf niemand mehr in der alten Datei tippen.
 
 ### Schritt 2 — Werkmeldung einlesen
 
-Zum Stichtag die Tabelle als **Excel (.xlsx)** herunterladen (`Datei > Herunterladen > Microsoft Excel`) und in den Ordner `data/werkmeldungen/` legen. Dann:
+Zum Stichtag die Tabelle als **Excel (.xlsx)** exportieren und in den Ordner `data/werkmeldungen/` legen. Dann:
 
 ```bash
 ./.venv/bin/python scripts/import_werkmeldungen.py --probe   # erst gucken
@@ -149,6 +149,8 @@ Nützliche Schalter:
 
 ```bash
 --schildformat a6          # große Schilder 140 × 100 mm, 4 pro A4 quer, größere Schrift
+--schildformat a3          # jedes DIN-A-Format von a0 bis a10 (Standard a8); Anordnung und Schrift passen sich an
+--einzelkarte 070          # nur ein Schild (Werk-Nr.) im gewählten Format, eine Karte pro Blatt
 --gruppierung Wand         # Werkliste nach Wänden gruppieren (Standard: fortlaufend nach Nr)
 --gruppierung Künstler:in  # Werkliste nach Person gruppieren
 --spalten 1                # einspaltige Werkliste, größere Schrift, mehr Seiten
@@ -157,7 +159,7 @@ Nützliche Schalter:
 --mit-beispielen           # die 14 Beispielwerke immer mitdrucken (Layout-Test)
 --statuspunkte             # verkauft/reserviert als farbigen Punkt mitdrucken
 --nur werkliste            # nur ein einzelnes PDF neu erzeugen (auch: --nur instagram)
---design data/design.json       # Typografie der Designerin/des Designers übernehmen
+--design data/design.json       # Typografie der Designerin/des Designers übernehmen (Erklärung: data/README_design.md)
 --adobe                    # zusätzlich Datendateien für InDesign und Illustrator
 ```
 
@@ -264,20 +266,7 @@ Warum „Rahmen im Preis: ja/nein“ so wichtig ist: Es ist die meistgestellte F
 
 ---
 
-## 7. Der Aufbautag
-
-- [ ] Werkliste-PDF **erst nach der endgültigen Hängung** final drucken
-- [ ] Schilder vorsortiert nach Wand mitbringen (Briefumschlag pro Wand beschriften)
-- [ ] Ersatzkarton, Cutter, Lineal, Klebepads, Wasserwaage im Werkzeugkoffer
-- [ ] Zollstock: Schildmitte 140–145 cm, Abstand 5–8 cm — einmal ausmessen, dann Pappschablone bauen
-- [ ] Rote Klebepunkte (Ø 8 mm) für Verkäufe bereitlegen
-- [ ] Rückseitenetiketten schon **vor** dem Aufhängen auf die Rahmenrückseiten kleben
-- [ ] Versicherungsliste ausgedruckt in die Ausstellungsmappe, Summe an Partnerverein Musterstadt melden
-- [ ] Ein Laptop mit Master + Generator vor Ort, für den unvermeidlichen Nachdruck
-
----
-
-## 8. Häufige Fehler und wie man sie vermeidet
+## 7. Häufige Fehler und wie man sie vermeidet
 
 **Nummern vor der Hängung vergeben.** Führt garantiert zu einer Werkliste, die nicht zum Raum passt. Erst Wand und Position festlegen.
 
@@ -287,45 +276,13 @@ Warum „Rahmen im Preis: ja/nein“ so wichtig ist: Es ist die meistgestellte F
 
 **Maße als Text.** In der Tabelle gehören Zahlen in die Maßspalten, nicht „30 cm“. Sonst rechnet nichts mehr.
 
-**Vergessene Reserve.** Am Aufbautag fällt immer auf, dass jemand einen Titel geändert hat. Ohne Ersatzkarton und funktionierenden Drucker vor Ort wird das ein Problem.
+**Vergessene Reserve.** Irgendwann fällt immer auf, dass jemand einen Titel geändert hat. Ohne Ersatzkarton und funktionierenden Drucker vor Ort wird das ein Problem.
 
 **Preis ohne Rahmenangabe.** Siehe oben. Immer „inkl. Rahmen“ oder „zzgl. Rahmen“.
 
 ---
 
-## 9. Textbaustein für die Werkmeldung
-
-> **Betreff: FOTOTAGE MUSTERSTADT 2026 — Werkdaten bis 22. August**
->
-> Hallo [Name],
->
-> für die Wandschilder und die ausliegende Werkliste brauchen wir von dir noch die Angaben zu deinen ausgestellten Arbeiten. Alles läuft über **eine gemeinsame Tabelle**, die alle zusammen ausfüllen:
->
-> **[LINK zur Google-Tabelle]**
->
-> Im Blatt „Werke“ pro ausgestelltem Bild eine Zeile — auch bei Serien jedes Bild einzeln. Wähle links unter „Künstler:in“ deinen Namen aus dem Dropdown (immer dieselbe Schreibweise). Und trag im Blatt „Kontakte“ einmalig deine E-Mail und Telefonnummer ein, dein Name steht dort schon. Dauert etwa zehn Minuten.
->
-> Für Druckverfahren, Papier und die Maße gibt es Auswahllisten — überwiegend die Papiere von Saal Digital, dazu die ERFURT-Digitalvlies-Medien und Affichenpapier/Blueback für großformatige Wandbilder bzw. Plakate. Druckst du auf etwas anderem, wähle „anderes Papier …“ und trag es von Hand ein. Das Blatt „Saal Digital“ erklärt, welches Papier / welcher Bildträger zu welchem Druckverfahren gehört; das Blatt „Glossar“ erklärt alle Begriffe. Unsicher beim Preis? Das Blatt „Preishilfe“ rechnet dir einen Vorschlag aus.
->
-> Zwei Dinge, bei denen wir oft nachfragen müssen:
->
-> **Maße.** Wir brauchen beides: Bildmaß (das sichtbare Bild, ohne Weißrand) und Blattmaß (das Papier inklusive Weißrand). Immer Höhe × Breite, immer nur die Zahl.
->
-> **Preis.** Bitte den Endpreis, den Besucher:innen zahlen — nicht deinen Nettoanteil. Und gib bitte an, ob der Rahmen im Preis enthalten ist. Das ist die häufigste Frage vor Ort.
->
-> Auf dem Wandschild erscheinen später nur: dein Name, Titel, Ort/Land/Jahr, Druckverfahren und Papier, Bildmaß und Auflage — plus ein kleiner QR-Code zu deinem Instagram-Profil. Preis und Rahmung stehen ausschließlich in der Werkliste, die an der Theke ausliegt.
->
-> Bitte bis **22. August** eintragen. Danach gehen die Schilder in den Druck.
->
-> Danke dir!
->
-> Team
-> KULTURVEREIN MUSTERSTADT | FOTOTAGE MUSTERSTADT 2026
-> fototage-musterstadt.de · instagram.com/fototage.musterstadt
-
----
-
-## 10. Fallback ohne Python
+## 8. Fallback ohne Python
 
 Falls das Skript partout nicht laufen will: `output/ausgabe/Werkdaten_Serienbrief.csv` ist ein Semikolon-CSV mit UTF-8-BOM, das Word und Excel direkt öffnen. Damit funktioniert ein klassischer Word-Serienbrief:
 
@@ -335,25 +292,6 @@ Falls das Skript partout nicht laufen will: `output/ausgabe/Werkdaten_Serienbrie
 4. *Fertig stellen und zusammenführen* → *Einzelne Dokumente bearbeiten*
 
 Für die Werkliste eignet sich derselbe Datensatz als Serienbrief vom Typ *Verzeichnis*.
-
----
-
-## 11. Zeitplan
-
-| Wann | Was |
-|---|---|
-| jetzt | Werkmeldung auf Google Drive teilen (Link an alle Teilnehmenden) |
-| jetzt | `scripts/build_qr_codes.py` laufen lassen, fehlende Instagram-Links einsammeln |
-| jetzt | `output/HANDBUCH_DESIGNER.pdf` an die Gestaltung geben |
-| 22. August | Frist Werkmeldung, danach Tabelle als Excel herunterladen |
-| 24. August | Erinnerung an Nachzügler, dann anrufen |
-| ~1. September | Import abgeschlossen, Daten geprüft |
-| ~5. September | Hängeplan steht → Wand und Position eintragen |
-| ~8. September | Schilder und Rückseitenetiketten drucken und schneiden |
-| Aufbautag | Hängung, dann Werkliste final drucken |
-| 12. September | Vernissage |
-| laufend | Verkäufe im Master pflegen, Werkliste nachdrucken |
-| 19. September | Finissage |
 
 ---
 

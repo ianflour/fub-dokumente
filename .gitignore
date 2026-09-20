@@ -5,10 +5,10 @@ __pycache__/
 *.py[cod]
 
 # Alles Erzeugte — wird aus scripts/ + data/ neu gebaut
-# (Master, Werkmeldung, alle PDFs, QR-Codes, Backups, upload/)
+# (Master, Werkmeldung, alle PDFs, QR-Codes, Backups)
 output/
 
-# aus Google Drive geladene, ausgefüllte Werkmeldung(en)
+# echte, ausgefüllte Werkmeldung(en) — enthalten Kontaktdaten
 data/werkmeldungen/*.xlsx
 data/werkmeldung_alt/*.xlsx
 

@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 """
 Gemeinsame Auswahllisten für die Dropdowns in
-  build_werkmeldung.py  (FUB2026_Werkmeldung_VORLAGE.xlsx)
-  build_master.py       (FUB2026_Werkdaten_MASTER.xlsx)
+  build_werkmeldung.py  (Werkmeldung_VORLAGE.xlsx)
+  build_master.py       (Werkdaten_MASTER.xlsx)
 
 Damit beide Dateien exakt dieselben Optionen anbieten. Nur hier ändern.
 

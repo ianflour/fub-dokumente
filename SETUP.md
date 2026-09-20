@@ -54,9 +54,9 @@ Hinter einem Firmen-/Sandbox-Proxy kann pip am TLS-Zertifikat scheitern
 Immer den Python-Interpreter aus `.venv` nehmen. Alles läuft über das Menü:
 
 ```bash
-./.venv/bin/python scripts/fub.py              # Menü
-./.venv/bin/python scripts/fub.py 2            # direkt: alle Druck-PDFs
-./.venv/bin/python scripts/fub.py 3 -- --probe # Argumente durchreichen
+./.venv/bin/python scripts/menue.py              # Menü
+./.venv/bin/python scripts/menue.py 2            # direkt: alle Druck-PDFs
+./.venv/bin/python scripts/menue.py 3 -- --probe # Argumente durchreichen
 ```
 
 Einzelne Werkzeuge gehen auch direkt:
@@ -73,7 +73,7 @@ Oder die Umgebung für die Sitzung aktivieren:
 
 ```bash
 source .venv/bin/activate
-python scripts/fub.py
+python scripts/menue.py
 ```
 
 ## Schriften

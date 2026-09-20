@@ -5,30 +5,128 @@
 
   "_farben_hinweis": "Hex-Werte, gelten für alle PDFs (Wandschilder, Werkliste, Instagram-Wand ...). text = Name und Titel, sekundaer = technische Angaben, tertiaer = Werknummer und Fußzeile, linie = Trennstrich, signal = verkauft/reserviert in der Werkliste.",
   "farben": {
-    "text":      "#000000",
+    "text": "#000000",
     "sekundaer": "#616161",
-    "tertiaer":  "#999999",
-    "linie":     "#C7C7C7",
-    "signal":    "#B31F1F"
+    "tertiaer": "#999999",
+    "linie": "#C7C7C7",
+    "signal": "#B31F1F"
   },
 
   "wandschild": {
-    "a7": {
-      "_hinweis": "Kleines Schild. 2 Spalten × 4 Zeilen auf A4 hoch = 8 Stück pro Bogen.",
-      "breite_mm": 100,
-      "hoehe_mm": 70,
-      "rand_mm": 7.0,
-      "qr_mm": 12,
-      "spalten": 2,
-      "zeilen": 4,
-      "bogen": "A4",
+    "_hinweis": "Schildformate DIN A0 bis A10 (quer). Jedes Format hat einen eigenen Block; nicht benötigte Blöcke und einzelne Werte dürfen gelöscht werden — fehlende Werte berechnet der Generator selbst. Schriftgrößen, Rand und QR passen sich der Schildgröße automatisch an. Erklärung aller Felder: data/README_design.md",
+    "anpassung": {
+      "_hinweis": "Automatische Anpassung der Inhalte an die Schildgröße, gilt für alle Formate. aktiv: false schaltet sie ab. text_min_faktor: eine zu lange Zeile schrumpft bis auf diesen Anteil (0.7 = 70 %) ihrer Schrift und wird erst danach mit „…“ gekürzt. inhalt_min_faktor: Untergrenze, auf die das ganze Schild verkleinert werden darf, wenn das Raster nicht in die Schildhöhe passt. bogenrand_mm: Rand des Bogens für Schnittmarken beim automatischen Anordnen.",
+      "aktiv": true,
+      "text_min_faktor": 0.7,
+      "inhalt_min_faktor": 0.4,
+      "bogenrand_mm": 8
+    },
+    "a0": {
+      "_hinweis": "DIN A0 quer (1189 × 841 mm). Eine Karte pro Blatt in Kartengröße, keine Schnittmarken (bogen: \"karte\").",
+      "breite_mm": 1189,
+      "hoehe_mm": 841,
+      "rand_mm": 72.3,
+      "qr_mm": 144.6,
+      "spalten": 1,
+      "zeilen": 1,
+      "bogen": "karte",
       "schriftgroessen_pt": {
-        "nummer": 7,
-        "kuenstlerin": 11,
-        "titel": 13,
-        "ortjahr": 9.5,
-        "technik": 8.3,
-        "hinweis": 7.2
+        "nummer": 136.6,
+        "kuenstlerin": 136.6,
+        "titel": 160.7,
+        "ortjahr": 120.5,
+        "technik": 106,
+        "hinweis": 99.6
+      }
+    },
+    "a1": {
+      "_hinweis": "DIN A1 quer (841 × 594 mm). Eine Karte pro Blatt in Kartengröße, keine Schnittmarken (bogen: \"karte\").",
+      "breite_mm": 841,
+      "hoehe_mm": 594,
+      "rand_mm": 51.1,
+      "qr_mm": 102.3,
+      "spalten": 1,
+      "zeilen": 1,
+      "bogen": "karte",
+      "schriftgroessen_pt": {
+        "nummer": 96.6,
+        "kuenstlerin": 96.6,
+        "titel": 113.6,
+        "ortjahr": 85.2,
+        "technik": 75,
+        "hinweis": 70.5
+      }
+    },
+    "a2": {
+      "_hinweis": "DIN A2 quer (594 × 420 mm). Eine Karte pro Blatt in Kartengröße, keine Schnittmarken (bogen: \"karte\").",
+      "breite_mm": 594,
+      "hoehe_mm": 420,
+      "rand_mm": 36.1,
+      "qr_mm": 72.2,
+      "spalten": 1,
+      "zeilen": 1,
+      "bogen": "karte",
+      "schriftgroessen_pt": {
+        "nummer": 68.2,
+        "kuenstlerin": 68.2,
+        "titel": 80.3,
+        "ortjahr": 60.2,
+        "technik": 53,
+        "hinweis": 49.8
+      }
+    },
+    "a3": {
+      "_hinweis": "DIN A3 quer (420 × 297 mm). Eine Karte pro Blatt in Kartengröße, keine Schnittmarken (bogen: \"karte\").",
+      "breite_mm": 420,
+      "hoehe_mm": 297,
+      "rand_mm": 25.5,
+      "qr_mm": 51.1,
+      "spalten": 1,
+      "zeilen": 1,
+      "bogen": "karte",
+      "schriftgroessen_pt": {
+        "nummer": 48.2,
+        "kuenstlerin": 48.2,
+        "titel": 56.8,
+        "ortjahr": 42.6,
+        "technik": 37.5,
+        "hinweis": 35.2
+      }
+    },
+    "a4": {
+      "_hinweis": "DIN A4 quer (297 × 210 mm). Eine Karte pro Blatt in Kartengröße, keine Schnittmarken (bogen: \"karte\").",
+      "breite_mm": 297,
+      "hoehe_mm": 210,
+      "rand_mm": 18.1,
+      "qr_mm": 36.1,
+      "spalten": 1,
+      "zeilen": 1,
+      "bogen": "karte",
+      "schriftgroessen_pt": {
+        "nummer": 34.1,
+        "kuenstlerin": 34.1,
+        "titel": 40.1,
+        "ortjahr": 30.1,
+        "technik": 26.5,
+        "hinweis": 24.9
+      }
+    },
+    "a5": {
+      "_hinweis": "DIN A5 quer (210 × 148 mm). 1 Spalten × 1 Zeilen auf A4 quer = 1 Stück pro Bogen.",
+      "breite_mm": 210,
+      "hoehe_mm": 148,
+      "rand_mm": 12.8,
+      "qr_mm": 25.5,
+      "spalten": 1,
+      "zeilen": 1,
+      "bogen": "A4quer",
+      "schriftgroessen_pt": {
+        "nummer": 24.1,
+        "kuenstlerin": 24.1,
+        "titel": 28.4,
+        "ortjahr": 21.3,
+        "technik": 18.7,
+        "hinweis": 17.6
       }
     },
     "a6": {
@@ -47,6 +145,78 @@
         "ortjahr": 13,
         "technik": 11,
         "hinweis": 9.5
+      }
+    },
+    "a7": {
+      "_hinweis": "Kleines Schild. 2 Spalten × 4 Zeilen auf A4 hoch = 8 Stück pro Bogen.",
+      "breite_mm": 100,
+      "hoehe_mm": 70,
+      "rand_mm": 7.0,
+      "qr_mm": 12,
+      "spalten": 2,
+      "zeilen": 4,
+      "bogen": "A4",
+      "schriftgroessen_pt": {
+        "nummer": 7,
+        "kuenstlerin": 11,
+        "titel": 13,
+        "ortjahr": 9.5,
+        "technik": 8.3,
+        "hinweis": 7.2
+      }
+    },
+    "a8": {
+      "_hinweis": "DIN A8 quer (74 × 52 mm). 2 Spalten × 5 Zeilen auf A4 hoch = 10 Stück pro Bogen.",
+      "breite_mm": 74,
+      "hoehe_mm": 52,
+      "rand_mm": 4.5,
+      "qr_mm": 9,
+      "spalten": 2,
+      "zeilen": 5,
+      "bogen": "A4",
+      "schriftgroessen_pt": {
+        "nummer": 8.5,
+        "kuenstlerin": 8.5,
+        "titel": 10,
+        "ortjahr": 7.5,
+        "technik": 6.6,
+        "hinweis": 6.2
+      }
+    },
+    "a9": {
+      "_hinweis": "DIN A9 quer (52 × 37 mm). 5 Spalten × 5 Zeilen auf A4 quer = 25 Stück pro Bogen.",
+      "breite_mm": 52,
+      "hoehe_mm": 37,
+      "rand_mm": 3.2,
+      "qr_mm": 6.3,
+      "spalten": 5,
+      "zeilen": 5,
+      "bogen": "A4quer",
+      "schriftgroessen_pt": {
+        "nummer": 6,
+        "kuenstlerin": 6,
+        "titel": 7,
+        "ortjahr": 5.3,
+        "technik": 4.6,
+        "hinweis": 4.4
+      }
+    },
+    "a10": {
+      "_hinweis": "DIN A10 quer (37 × 26 mm). 5 Spalten × 10 Zeilen auf A4 hoch = 50 Stück pro Bogen.",
+      "breite_mm": 37,
+      "hoehe_mm": 26,
+      "rand_mm": 2.2,
+      "qr_mm": 4.5,
+      "spalten": 5,
+      "zeilen": 10,
+      "bogen": "A4",
+      "schriftgroessen_pt": {
+        "nummer": 4.2,
+        "kuenstlerin": 4.2,
+        "titel": 5,
+        "ortjahr": 3.8,
+        "technik": 3.3,
+        "hinweis": 3.1
       }
     }
   }

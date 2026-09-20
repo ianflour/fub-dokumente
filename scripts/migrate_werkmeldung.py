@@ -4,7 +4,7 @@
 FOTOTAGE MUSTERSTADT 2026 — Werkmeldung übertragen
 =============================================
 Überträgt die schon ausgefüllten Inhalte aus einer ÄLTEREN Werkmeldung
-(z. B. der Datei, die gerade auf Google Drive liegt) in eine FRISCHE
+(z. B. der Datei, die gerade im Umlauf ist) in eine FRISCHE
 Vorlage aus build_werkmeldung.py — ohne Datenverlust.
 
 Kopiert werden nur die eingegebenen Werte:
@@ -27,14 +27,13 @@ Ablauf
 ------
   1. Neue Vorlage bauen:
        ./.venv/bin/python scripts/build_werkmeldung.py
-  2. Die ausgefüllte Datei von Google Drive laden
-       (Datei > Herunterladen > Microsoft Excel) und in den Ordner
+  2. Die ausgefüllte Datei als Excel (.xlsx) exportieren und in den Ordner
        data/werkmeldung_alt/ legen (eine einzige .xlsx).
   3. Übertragen:
        ./.venv/bin/python scripts/migrate_werkmeldung.py --probe
        ./.venv/bin/python scripts/migrate_werkmeldung.py
-  4. FUB2026_Werkmeldung_UEBERTRAGEN.xlsx prüfen, dann als neue
-     gemeinsame Datei auf Google Drive hochladen und die alte ersetzen.
+  4. Werkmeldung_UEBERTRAGEN.xlsx prüfen, dann als neue
+     gemeinsame Datei bereitstellen und die alte ersetzen.
 
 Statt des Ordners geht auch eine Datei direkt:  --alt DEINE_DATEI.xlsx
 
@@ -57,8 +56,8 @@ except Exception:                       # pragma: no cover
     def mal_zeichen(t):
         return t
 
-VORLAGE = P.output("FUB2026_Werkmeldung_VORLAGE.xlsx")
-ZIEL = P.output("FUB2026_Werkmeldung_UEBERTRAGEN.xlsx")
+VORLAGE = P.output("Werkmeldung_VORLAGE.xlsx")
+ZIEL = P.output("Werkmeldung_UEBERTRAGEN.xlsx")
 ORDNER = P.data("werkmeldung_alt")
 
 
@@ -68,7 +67,7 @@ def finde_alt(ordner):
                if not os.path.basename(p).startswith("~$")]
     if not treffer:
         sys.exit(f"Keine .xlsx in {P.rel(ordner)}/ — die ausgefüllte Werkmeldung "
-                 f"von Google Drive dort ablegen (Datei > Herunterladen > Microsoft Excel).")
+                 f"als Excel-Export (.xlsx) dort ablegen.")
     if len(treffer) > 1:
         sys.exit(f"Mehrere .xlsx in {P.rel(ordner)}/:\n  "
                  + "\n  ".join(os.path.basename(t) for t in treffer)
@@ -274,7 +273,7 @@ def main():
     wb.save(args.ziel)
     print(f"\nGeschrieben: {args.ziel}")
     print("Bitte öffnen und stichprobenartig mit der alten Datei vergleichen, "
-          "dann auf Google Drive hochladen und die alte Datei ersetzen.\n")
+          "dann als neue gemeinsame Datei bereitstellen und die alte ersetzen.\n")
 
 
 if __name__ == "__main__":

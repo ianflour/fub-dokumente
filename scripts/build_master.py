@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-Erzeugt FUB2026_Werkdaten_MASTER.xlsx
+Erzeugt Werkdaten_MASTER.xlsx
 FOTOTAGE MUSTERSTADT 2026 - Konzept A (Wandschild + Werkliste)
 
 ACHTUNG: Baut die Datei komplett neu (nur die 14 Beispielwerke) — sobald echte
@@ -23,7 +23,7 @@ import _pfade as P
 import _saal_listen as SL
 import _teilnehmende as T
 
-OUT = P.output("FUB2026_Werkdaten_MASTER.xlsx")
+OUT = P.output("Werkdaten_MASTER.xlsx")
 
 
 def _hat_echte_werke(pfad):
@@ -231,7 +231,7 @@ def build():
                           "importiert wurden, lässt der Generator sie automatisch aus dem Druck "
                           "weg — von Hand löschen musst du sie nicht, kannst es aber jederzeit."),
         ("", ""),
-        ("Nächster Schritt", "./.venv/bin/python scripts/fub.py  (Menüpunkt 2: Druckdaten erzeugen)"),
+        ("Nächster Schritt", "./.venv/bin/python scripts/menue.py  (Menüpunkt 2: Druckdaten erzeugen)"),
         ("Hinweis MwSt.", "Preisangaben sind Endpreise. Bei Kleinunternehmerregelung nach § 19 UStG "
                           "keine USt. ausweisen — Hinweis steht im Fuß der Werkliste und ist im "
                           "Generator anpassbar (--ust-hinweis)."),
@@ -351,7 +351,7 @@ def build():
     ]
     for name, src, streng in dvs:
         # Bereichsbezug ohne führendes "=" (Excel repariert es still, andere
-        # Programme wie Numbers oder Google Sheets verwerfen die Regel).
+        # Programme wie Numbers verwerfen die Regel).
         dv = DataValidation(type="list", formula1=src, allow_blank=True,
                             showDropDown=False, showErrorMessage=streng)
         w.add_data_validation(dv)
@@ -454,7 +454,7 @@ if __name__ == "__main__":
         sys.exit(
             f"FEHLER: {P.rel(OUT)} enthält schon echte Werke (nicht nur Beispiele) — "
             "ein Neubau würde sie löschen.\n"
-            "Neue Meldungen kommen über 'Werkmeldungen einlesen' (fub.py 3) rein, "
+            "Neue Meldungen kommen über 'Werkmeldungen einlesen' (menue.py 3) rein, "
             "ohne Bestehendes zu überschreiben. Nur mit --force trotzdem neu bauen."
         )
     build()

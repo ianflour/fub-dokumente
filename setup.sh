@@ -5,7 +5,7 @@
 #   ./setup.sh
 #
 # Danach:
-#   ./.venv/bin/python scripts/fub.py
+#   ./.venv/bin/python scripts/menue.py
 # oder Umgebung aktivieren:
 #   source .venv/bin/activate
 
@@ -44,4 +44,4 @@ EOF
 
 echo
 echo "Fertig. Test:"
-echo "  ./.venv/bin/python scripts/fub.py"
+echo "  ./.venv/bin/python scripts/menue.py"

@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-"""Erzeugt FUB2026_Werkmeldung_VORLAGE.xlsx.
+"""Erzeugt Werkmeldung_VORLAGE.xlsx.
 
-Eine gemeinsame Datei für ALLE Teilnehmenden — gedacht für Google Drive /
-Google Tabellen, wo alle gleichzeitig ihre Werke eintragen. Jede Zeile
+Eine gemeinsame Datei für ALLE Teilnehmenden — gedacht als gemeinsam
+bearbeitete Tabelle, in die alle gleichzeitig ihre Werke eintragen. Jede Zeile
 gehört über die Spalte „Künstler:in" (Dropdown) zu einer Person; die
 Kontaktdaten stehen einmalig im Blatt „Kontakte".
 """
@@ -17,7 +17,7 @@ import _pfade as P
 import _saal_listen as SL
 import _teilnehmende as T
 
-OUT = P.output("FUB2026_Werkmeldung_VORLAGE.xlsx")
+OUT = P.output("Werkmeldung_VORLAGE.xlsx")
 FONT = "Arial"
 FILL_HEAD = PatternFill("solid", fgColor="D9D9D9")
 FILL_KEY = PatternFill("solid", fgColor="FFF2CC")
@@ -31,7 +31,7 @@ EINGABE_ZEILEN = 200
 # Kein Sicherheitsmerkmal (das Passwort steht im Handbuch) — nur ein Schutz
 # gegen versehentliches Löschen/Überschreiben in der gemeinsam bearbeiteten
 # Datei. Freigeschaltete (gelbe/blaue) Zellen bleiben für alle editierbar.
-PASSWORT = "fub2026"
+PASSWORT = "werkmeldung"
 
 
 def schuetzen(ws, autofilter=False):
@@ -48,7 +48,7 @@ def frei(cell):
 
 def text_zelle(c, wert):
     """Setzt einen Wert und erzwingt Text, falls er mit = + @ beginnt —
-    sonst liest Excel / Google Sheets ihn als (kaputte) Formel und zeigt
+    sonst liest das Tabellenprogramm ihn als (kaputte) Formel und zeigt
     #NAME? / #ERROR! an."""
     c.value = wert
     if isinstance(wert, str) and wert[:1] in ("=", "+", "@"):
@@ -410,15 +410,15 @@ def build():
             wl[f"{col}{i}"] = v
             wl[f"{col}{i}"].font = Font(name=FONT, size=10)
         wl.column_dimensions[col].width = 42 if col == "D" else 22
-        # Bereichsbezug OHNE führendes "=" — Google Sheets kann die Dropdown-
-        # Regel sonst beim xlsx-Import nicht lesen und lässt sie ganz weg.
+        # Bereichsbezug OHNE führendes "=" — manche Tabellenprogramme können die
+        # Dropdown-Regel sonst beim xlsx-Import nicht lesen und lässt sie ganz weg.
         bereich[titel] = f"Listen!${col}$2:${col}${len(werte) + 1}"
     wl["G1"] = ("Bitte nicht bearbeiten — dieses Blatt füllt die Auswahllisten "
                 "im Blatt „Werke“.")
     wl["G1"].font = Font(name=FONT, size=10, bold=True, color="C00000")
     wl.column_dimensions["G"].width = 70
-    # Blatt bleibt SICHTBAR: Google Sheets importiert Dropdown-Quellen von
-    # ausgeblendeten Blättern nicht zuverlässig. Wird zum Schluss ans Ende
+    # Blatt bleibt SICHTBAR: manche Tabellenprogramme importieren Dropdown-
+    # Quellen von ausgeblendeten Blättern nicht zuverlässig. Wird zum Schluss ans Ende
     # der Blattreihe geschoben, damit es nicht im Weg ist.
     schuetzen(wl)
 
@@ -464,8 +464,8 @@ def build():
             w.cell(row=r, column=ci).number_format = fmt
 
     # ---------------------------------------------------------- Dropdowns
-    # inline=True  -> kommagetrennte Literalliste ("a,b,c"), von Google Sheets
-    #                 am zuverlässigsten übernommen; nur für kurze Listen ohne
+    # inline=True  -> kommagetrennte Literalliste ("a,b,c"), von den meisten
+    #                 Tabellenprogrammen zuverlässig übernommen; nur für kurze Listen ohne
     #                 Komma im Wert und unter 255 Zeichen.
     # inline=False -> Bereichsbezug auf das Blatt „Listen" (ohne führendes "=").
     def add_dv(spaltenname, quelle, inline=False):

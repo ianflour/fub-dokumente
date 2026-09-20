@@ -3,9 +3,9 @@
 """
 FOTOTAGE MUSTERSTADT 2026 — Druckdaten-Generator (Konzept A)
 ======================================================
-Liest output/FUB2026_Werkdaten_MASTER.xlsx und erzeugt in output/ausgabe/:
+Liest output/Werkdaten_MASTER.xlsx und erzeugt in output/ausgabe/:
 
-  01_Wandschilder.pdf         A8 quer (10/A4, Standard), auch A7 (8/A4) oder A6 (4/A4); Schnittlinien + QR
+  01_Wandschilder.pdf         DIN A0–A10 quer (Standard A8, 10/A4); Schnittlinien + QR
   02_Werkliste.pdf            ausliegende Werk- und Preisliste, A4, 2-spaltig, fortlaufend
   03_Rueckseitenetiketten.pdf Etiketten für die Rahmenrückseite (12/A4)
   04_Versicherungsliste.pdf   interne Liste mit Versicherungswerten
@@ -17,10 +17,12 @@ Aufruf
   ./.venv/bin/python scripts/build_druckdaten.py
   ./.venv/bin/python scripts/build_druckdaten.py --schildformat a7      # größer, 8/A4
   ./.venv/bin/python scripts/build_druckdaten.py --schildformat a6      # groß/barrierearm, 4/A4
+  ./.venv/bin/python scripts/build_druckdaten.py --schildformat a3      # jedes DIN-A-Format von a0 bis a10
+  ./.venv/bin/python scripts/build_druckdaten.py --einzelkarte 070 --schildformat a2   # ein Schild pro Blatt
   ./.venv/bin/python scripts/build_druckdaten.py --nur wandschilder
   ./.venv/bin/python scripts/build_druckdaten.py --gruppierung Wand     # Werkliste nach Wänden
   ./.venv/bin/python scripts/build_druckdaten.py --ohne-preishinweis
-  (oder bequem über  scripts/fub.py , Menüpunkt 2)
+  (oder bequem über  scripts/menue.py , Menüpunkt 2)
 
 Die 14 Beispielwerke aus build_master.py (Spalte "Beispiel" = ja) werden automatisch
 übersprungen, sobald mindestens ein echtes Werk im Master steht. --mit-beispielen
@@ -43,7 +45,7 @@ from datetime import date
 from io import BytesIO
 
 from openpyxl import load_workbook
-from reportlab.lib.pagesizes import A3, A4, landscape
+from reportlab.lib.pagesizes import A4, landscape
 from reportlab.lib.units import mm
 from reportlab.lib.utils import ImageReader
 from reportlab.pdfbase import pdfmetrics
@@ -138,11 +140,11 @@ def register_fonts():
     eigene = finde_schriften(SCHRIFTEN_ORDNER)
     if eigene:
         try:
-            pdfmetrics.registerFont(TTFont("FUB", eigene["regular"]))
-            pdfmetrics.registerFont(TTFont("FUB-B", eigene["bold"]))
-            pdfmetrics.registerFont(TTFont("FUB-I", eigene["italic"]))
-            pdfmetrics.registerFont(TTFont("FUB-BI", eigene["bolditalic"]))
-            F_REG, F_BOLD, F_IT, F_BI = "FUB", "FUB-B", "FUB-I", "FUB-BI"
+            pdfmetrics.registerFont(TTFont("SCHRIFT", eigene["regular"]))
+            pdfmetrics.registerFont(TTFont("SCHRIFT-B", eigene["bold"]))
+            pdfmetrics.registerFont(TTFont("SCHRIFT-I", eigene["italic"]))
+            pdfmetrics.registerFont(TTFont("SCHRIFT-BI", eigene["bolditalic"]))
+            F_REG, F_BOLD, F_IT, F_BI = "SCHRIFT", "SCHRIFT-B", "SCHRIFT-I", "SCHRIFT-BI"
             return f"{os.path.basename(eigene['regular'])} + {os.path.basename(eigene['bold'])} (aus {SCHRIFTEN_ORDNER}/)"
         except Exception:
             pass
@@ -151,11 +153,11 @@ def register_fonts():
             paths = [os.path.join(d, n) for n in names]
             if all(os.path.exists(p) for p in paths):
                 try:
-                    pdfmetrics.registerFont(TTFont("FUB", paths[0]))
-                    pdfmetrics.registerFont(TTFont("FUB-B", paths[1]))
-                    pdfmetrics.registerFont(TTFont("FUB-I", paths[2]))
-                    pdfmetrics.registerFont(TTFont("FUB-BI", paths[3]))
-                    F_REG, F_BOLD, F_IT, F_BI = "FUB", "FUB-B", "FUB-I", "FUB-BI"
+                    pdfmetrics.registerFont(TTFont("SCHRIFT", paths[0]))
+                    pdfmetrics.registerFont(TTFont("SCHRIFT-B", paths[1]))
+                    pdfmetrics.registerFont(TTFont("SCHRIFT-I", paths[2]))
+                    pdfmetrics.registerFont(TTFont("SCHRIFT-BI", paths[3]))
+                    F_REG, F_BOLD, F_IT, F_BI = "SCHRIFT", "SCHRIFT-B", "SCHRIFT-I", "SCHRIFT-BI"
                     return os.path.basename(paths[0])
                 except Exception:
                     continue
@@ -163,10 +165,21 @@ def register_fonts():
 
 
 # ----------------------------------------------------------------- Design-Konfiguration
+# Überschreibungen aus design.json ("wandschild"-Block). Wirken in schild_cfg().
+DESIGN_SCHILD = {}          # {"a7": {...}, "a5": {...}}  — je Schildformat
+ANPASSUNG = {               # automatische Anpassung der Inhalte, siehe data/README_design.md
+    "aktiv": True,
+    "text_min_faktor": 0.7,      # einzelne Zeile darf bis auf 70 % schrumpfen, bevor sie gekürzt wird
+    "inhalt_min_faktor": 0.4,    # gesamtes Schild darf bis auf 40 % der Sollgrößen schrumpfen
+    "bogenrand_mm": 8.0,         # Rand für Schnittmarken beim Anordnen mehrerer Schilder pro Bogen
+}
+
+
 def lade_design(pfad):
-    """Liest design.json des Designers und überschreibt Schildmaße, Typografie-
+    """Liest design.json des Designers und merkt sich Schildmaße, Typografie-
     größen und Farben. Die Schrift selbst kommt unabhängig davon aus
-    register_fonts() (Ordner schriften/, automatisch erkannt)."""
+    register_fonts() (Ordner schriften/, automatisch erkannt). Die Schild-
+    Überschreibungen werden erst in schild_cfg() angewendet."""
     if not pfad:
         return None
     if not os.path.exists(pfad):
@@ -174,32 +187,21 @@ def lade_design(pfad):
     with open(pfad, encoding="utf-8") as f:
         d = json.load(f)
 
-    # Schildmaße und Typografie überschreiben
-    for fmt in ("a7", "a6"):
-        blk = d.get("wandschild", {}).get(fmt)
-        if not blk:
+    ws = d.get("wandschild") or {}
+    for fmt, blk in ws.items():
+        if fmt.startswith("_"):
             continue
-        cfg = SCHILD[fmt]
-        if "breite_mm" in blk:
-            cfg["w"] = blk["breite_mm"] * mm
-        if "hoehe_mm" in blk:
-            cfg["h"] = blk["hoehe_mm"] * mm
-        if "rand_mm" in blk:
-            cfg["pad"] = blk["rand_mm"] * mm
-        if "qr_mm" in blk:
-            cfg["qr"] = blk["qr_mm"] * mm
-        for k, ziel in (("nummer", "s_nr"), ("kuenstlerin", "s_art"), ("titel", "s_tit"),
-                        ("ortjahr", "s_ort"), ("technik", "s_tec"), ("hinweis", "s_hint")):
-            if k in blk.get("schriftgroessen_pt", {}):
-                cfg[ziel] = blk["schriftgroessen_pt"][k]
-        if "spalten" in blk:
-            cfg["cols"] = blk["spalten"]
-        if "zeilen" in blk:
-            cfg["rows"] = blk["zeilen"]
-        if blk.get("bogen") == "A4quer":
-            cfg["seite"] = landscape(A4)
-        elif blk.get("bogen") == "A4":
-            cfg["seite"] = A4
+        if fmt == "anpassung":
+            for k in ANPASSUNG:
+                if k in blk:
+                    ANPASSUNG[k] = blk[k]
+            continue
+        if fmt.lower() not in FORMATE:
+            print(f"Hinweis: design.json → wandschild → „{fmt}“ ist kein DIN-A-Format "
+                  f"(erlaubt: {', '.join(FORMATE)}) — ignoriert.")
+            continue
+        if isinstance(blk, dict):
+            DESIGN_SCHILD[fmt.lower()] = blk
     return d
 
 
@@ -378,9 +380,26 @@ def draw_wrapped(c, x, y, text, font, size, maxw, leading, maxlines=None, color=
 
 
 # ----------------------------------------------------------------- 01 Wandschilder
-SCHILD = {
-    # Kartenformat bewusst 5 mm kleiner als das exakte DIN-Maß,
-    # damit auf dem A4-Bogen Platz für Schnittmarken bleibt.
+# DIN-A-Reihe in mm (Hochformat: Breite, Höhe). Wandschilder stehen quer, die
+# lange Seite ist also die Breite.
+DIN_MM = {0: (841, 1189), 1: (594, 841), 2: (420, 594), 3: (297, 420), 4: (210, 297),
+          5: (148, 210), 6: (105, 148), 7: (74, 105), 8: (52, 74), 9: (37, 52), 10: (26, 37)}
+FORMATE = [f"a{n}" for n in DIN_MM]                    # a0 … a10
+
+# Bezugsgröße der automatischen Skalierung: A8 quer. Das ist die kompakteste
+# Variante, bei der alle Angaben noch ohne Kürzung passen (QR mit 9 mm knapp,
+# aber mit guter Druckauflösung scannbar). Alle anderen DIN-Formate, für die
+# unten kein eigener Eintrag steht, werden linear davon abgeleitet.
+REF = dict(w=74 * mm, h=52 * mm, pad=4.5 * mm, qr=9 * mm,
+           s_nr=8.5, s_art=8.5, s_tit=10, s_ort=7.5, s_tec=6.6, s_hint=6.2)
+_SKALIERT = ("pad", "qr", "s_nr", "s_art", "s_tit", "s_ort", "s_tec", "s_hint")
+
+# Feste, von Hand abgestimmte Bogenformate. A7 und A6 sind bewusst etwas
+# kleiner als das DIN-Maß, damit 8 bzw. 4 Schilder samt Schnittmarken auf einen
+# A4-Bogen passen. Alle anderen Formate (a0–a5, a9, a10) sind exakt DIN.
+PRESETS = {
+    # sehr klein: 10 Schilder auf einem A4-Bogen hoch
+    "a8": dict(REF, cols=2, rows=5, seite=A4),
     # klein: 8 Schilder auf einem A4-Bogen hoch
     "a7": dict(w=100 * mm, h=70 * mm, cols=2, rows=4, seite=A4, pad=7.0 * mm,
                s_nr=10.5, s_art=11, s_tit=13, s_ort=9.5, s_tec=8.3, s_hint=7.6,
@@ -389,13 +408,182 @@ SCHILD = {
     "a6": dict(w=140 * mm, h=100 * mm, cols=2, rows=2, seite=landscape(A4), pad=12 * mm,
                s_nr=13, s_art=15, s_tit=18, s_ort=13, s_tec=11, s_hint=10,
                qr=17 * mm),
-    # sehr klein: 10 Schilder auf einem A4-Bogen hoch (≈ DIN A8 quer).
-    # Kompakteste Variante, bei der alle Angaben noch ohne Kürzung passen;
-    # QR mit 9 mm knapp, aber mit guter Druckauflösung scannbar.
-    "a8": dict(w=74 * mm, h=52 * mm, cols=2, rows=5, seite=A4, pad=4.5 * mm,
-               s_nr=8.5, s_art=8.5, s_tit=10, s_ort=7.5, s_tec=6.6, s_hint=6.2,
-               qr=9 * mm),
 }
+
+_SCHRIFT_KEYS = (("nummer", "s_nr"), ("kuenstlerin", "s_art"), ("titel", "s_tit"),
+                 ("ortjahr", "s_ort"), ("technik", "s_tec"), ("hinweis", "s_hint"))
+
+
+def _din_seite(name):
+    """'A4' / 'a4quer' / 'A3hoch' -> ((Breite, Höhe) in pt, 'quer'|'hoch'|None); None bei Unsinn.
+    'A4' ohne Zusatz gilt als Hochformat (wie bisher in design.json)."""
+    m = re.fullmatch(r"a(\d+)(quer|hoch)?", str(name).strip().lower())
+    if not m or int(m.group(1)) not in DIN_MM:
+        return None
+    b, h = DIN_MM[int(m.group(1))]
+    return ((h * mm, b * mm) if m.group(2) == "quer" else (b * mm, h * mm)), m.group(2)
+
+
+def seitenname(seite):
+    """(Breite, Höhe) in pt -> 'A4 hoch' / 'A3 quer' / '123 × 456 mm'."""
+    b, h = seite[0] / mm, seite[1] / mm
+    for n, (db, dh) in DIN_MM.items():
+        if abs(b - db) < 1 and abs(h - dh) < 1:
+            return f"A{n} hoch"
+        if abs(b - dh) < 1 and abs(h - db) < 1:
+            return f"A{n} quer"
+    return f"{b:.0f} × {h:.0f} mm"
+
+
+def _skaliere(cfg, w, h):
+    """Schild auf die Größe w × h bringen: Schriften, Rand und QR wachsen bzw.
+    schrumpfen im selben Verhältnis (kleinere Seite des Verhältnisses gewinnt)."""
+    k = min(w / cfg["w"], h / cfg["h"])
+    neu = dict(cfg, w=w, h=h)
+    for key in _SKALIERT:
+        neu[key] = cfg[key] * k
+    return neu
+
+
+def plane_bogen(w, h, rand, bogen=None):
+    """Wie viele Schilder w × h passen (mit Rand für Schnittmarken) auf den Bogen?
+    bogen=None/'auto': A4, hoch oder quer — was mehr Schilder ergibt.
+    bogen='A3', 'A4quer' …: genau dieser Bogen (ohne Zusatz = hoch).
+    -> (seite, spalten, zeilen) oder None, wenn nicht einmal eines passt
+       (dann gilt: Blatt = Karte, siehe schild_cfg)."""
+    if bogen and str(bogen).lower() != "auto":
+        p = _din_seite(bogen)
+        if not p:
+            sys.exit(f"FEHLER: design.json → bogen „{bogen}“ ist kein DIN-A-Bogen "
+                     f"(z. B. A4, A4quer, A3).")
+        seiten = [p[0]]
+    else:
+        seiten = [A4, landscape(A4)]
+    bester = None
+    for sw, sh in seiten:
+        cols = int((sw - 2 * rand + 0.01 * mm) // w)
+        rows = int((sh - 2 * rand + 0.01 * mm) // h)
+        if cols >= 1 and rows >= 1 and (bester is None or cols * rows > bester[1] * bester[2]):
+            bester = ((sw, sh), cols, rows)
+    return bester
+
+
+def schild_cfg(fmt):
+    """Endgültige Konfiguration eines Schildformats (a0 … a10):
+    Grundwerte (eigener Eintrag in PRESETS oder linear von REF abgeleitet)
+    → Überschreibungen aus design.json → Anordnung auf dem Bogen."""
+    fmt = fmt.lower()
+    if fmt not in FORMATE:
+        sys.exit(f"FEHLER: unbekanntes Schildformat „{fmt}“ (erlaubt: {', '.join(FORMATE)}).")
+    ov = DESIGN_SCHILD.get(fmt, {})
+    rand = ANPASSUNG["bogenrand_mm"] * mm
+
+    if fmt in PRESETS:
+        cfg = dict(PRESETS[fmt])
+    else:
+        b, h = DIN_MM[int(fmt[1:])]
+        cfg = _skaliere(dict(REF), h * mm, b * mm)          # quer: lange Seite = Breite
+
+    if "breite_mm" in ov or "hoehe_mm" in ov:
+        cfg = _skaliere(cfg, ov["breite_mm"] * mm if "breite_mm" in ov else cfg["w"],
+                        ov["hoehe_mm"] * mm if "hoehe_mm" in ov else cfg["h"])
+        for k in ("cols", "rows", "seite"):                  # Raster passt nicht mehr → neu rechnen
+            cfg.pop(k, None)
+    if "rand_mm" in ov:
+        cfg["pad"] = ov["rand_mm"] * mm
+    if "qr_mm" in ov:
+        cfg["qr"] = ov["qr_mm"] * mm
+    for k, ziel in _SCHRIFT_KEYS:
+        if k in ov.get("schriftgroessen_pt", {}):
+            cfg[ziel] = ov["schriftgroessen_pt"][k]
+
+    # --- Anordnung auf dem Bogen ---------------------------------------------
+    cfg["blatt"] = False
+    if str(ov.get("bogen") or "").lower() in ("karte", "blatt"):
+        # ausdrücklich: eine Karte pro Blatt in Schildgröße, keine Schnittmarken
+        cfg.update(blatt=True, seite=(cfg["w"], cfg["h"]), cols=1, rows=1)
+    elif ov.get("bogen") or "seite" not in cfg:
+        plan = plane_bogen(cfg["w"], cfg["h"], rand, ov.get("bogen"))
+        if plan is None:
+            # Schild passt (mit Rand) auf keinen A4-Bogen: Blatt = Karte, eine
+            # Karte pro Seite in Schildgröße, keine Schnittmarken.
+            cfg.update(blatt=True, seite=(cfg["w"], cfg["h"]), cols=1, rows=1)
+        else:
+            cfg["seite"] = plan[0]
+            cfg["cols"], cfg["rows"] = plan[1], plan[2]
+    if not cfg["blatt"]:
+        if "spalten" in ov:
+            cfg["cols"] = int(ov["spalten"])
+        if "zeilen" in ov:
+            cfg["rows"] = int(ov["zeilen"])
+    cfg["fmt"] = fmt
+    return cfg
+
+
+# ------------------------------------------------ Inhalt an das Schild anpassen
+# Das Raster in schild_zeichnen() ist fest (Nr, Name, 2× Titel, Ort, Strich,
+# 2× Technik, Maß/Auflage, Hinweis): seine Höhe hängt nur von den Schrift-
+# größen ab, nicht vom Text. Passt sie nicht in das Schild, wird alles im
+# selben Verhältnis verkleinert (fit_faktor). Zu lange Texte schrumpfen einzeln
+# bis text_min_faktor und werden erst danach mit „…“ gekürzt.
+def _raster_hoehe(cfg, f=1.0):
+    """Höhe in pt, die das Raster von schild_zeichnen() bis zur Unterkante der
+    letzten Zeile belegt, bei Skalierung f."""
+    g = cfg["s_art"] * f / 11.0
+    zeilen = (cfg["s_nr"] * 1.2 + cfg["s_art"] * 1.25 + 2 * cfg["s_tit"] * 1.22
+              + cfg["s_ort"] * 1.3 + 3 * cfg["s_tec"] * 1.34 + cfg["s_hint"] * 1.2
+              - cfg["s_hint"] * 0.1) * f
+    luecken = (3.0 + 1.0 + 1.0 + 2.2 + 3.2 + 3.5) * mm * g
+    return zeilen + luecken
+
+
+def fit_faktor(cfg, bh):
+    """Skalierung (≤ 1), mit der das Raster in die Schildhöhe bh passt."""
+    if not ANPASSUNG["aktiv"]:
+        return 1.0
+    frei = bh - 2 * cfg["pad"]
+    f = min(1.0, frei / _raster_hoehe(cfg))
+    return max(f, ANPASSUNG["inhalt_min_faktor"])
+
+
+def _mit_punkten(text, font, size, maxw):
+    t = text
+    while t and pdfmetrics.stringWidth(t + "…", font, size) > maxw:
+        t = t[:-1]
+    return t.rstrip() + "…"
+
+
+def einzeilig(text, font, size, maxw, min_faktor=0.7, schritt=0.25):
+    """Text in EINE Zeile bringen: erst Schrift bis min_faktor verkleinern,
+    dann mit „…“ kürzen. -> (Zeile, Schriftgröße)"""
+    text = str(text or "").strip()
+    if not text:
+        return "", size
+    s = size
+    while pdfmetrics.stringWidth(text, font, s) > maxw and s - schritt >= size * min_faktor:
+        s -= schritt
+    if pdfmetrics.stringWidth(text, font, s) > maxw:
+        text = _mit_punkten(text, font, s, maxw)
+    return text, s
+
+
+def mehrzeilig(text, font, size, maxw, maxzeilen, min_faktor=0.7, schritt=0.25):
+    """Text auf höchstens maxzeilen umbrechen: erst Schrift bis min_faktor
+    verkleinern, dann mit „…“ kürzen. -> ([Zeilen], Schriftgröße)"""
+    text = str(text or "").strip()
+    if not text:
+        return [], size
+    s = size
+    zeilen = wrap(text, font, s, maxw)
+    while len(zeilen) > maxzeilen and s - schritt >= size * min_faktor:
+        s -= schritt
+        zeilen = wrap(text, font, s, maxw)
+    if len(zeilen) > maxzeilen:
+        zeilen = zeilen[:maxzeilen]
+        zeilen[-1] = _mit_punkten(zeilen[-1] + " …", font, s, maxw)
+    zeilen = [z if pdfmetrics.stringWidth(z, font, s) <= maxw else _mit_punkten(z, font, s, maxw)
+              for z in zeilen]
+    return zeilen, s
 
 
 def schild_zeichnen(c, x, y, bw, bh, w, cfg, preishinweis=True, statuspunkt=False,
@@ -406,36 +594,37 @@ def schild_zeichnen(c, x, y, bw, bh, w, cfg, preishinweis=True, statuspunkt=Fals
     der Textlänge der anderen Felder. Fehlt ein Wert, bleibt seine Zeile leer —
     so sehen alle Schilder gleich aus. Titel und Technik/Papier haben je zwei
     reservierte Zeilen. QR-Code (falls vorhanden) unten rechts.
+
+    Größen passen sich an: passt das Raster nicht in die Schildhöhe, wird
+    alles verkleinert (fit_faktor); zu lange Texte schrumpfen einzeln oder
+    werden gekürzt (einzeilig / mehrzeilig).
     """
     pad = cfg["pad"]
     tw = bw - 2 * pad
     qs = cfg.get("qr", 12 * mm) if qr else 0
     tw_lo = tw - (qs + 3 * mm) if qr else tw     # schmalere Breite für die unteren Zeilen
     grau = FARBEN["sekundaer"]
-    g = cfg["s_art"] / 11.0                       # skaliert die mm-Abstände je Format
+
+    f = fit_faktor(cfg, bh)
+    s_nr, s_art, s_tit0, s_ort, s_tec, s_hint = (cfg[k] * f for k in
+                                                  ("s_nr", "s_art", "s_tit", "s_ort", "s_tec", "s_hint"))
+    g = s_art / 11.0                              # skaliert die mm-Abstände je Format
+    tmin = ANPASSUNG["text_min_faktor"] if ANPASSUNG["aktiv"] else 1.0
 
     # --- messen -----------------------------------------------------------
-    l_art = wrap(w["Künstler:in"], F_BOLD, cfg["s_art"], tw)[:1]
-
-    # Titel: feste Größe, bis zu zwei Zeilen. Nur echte Bandwurm-Titel werden
-    # so weit verkleinert, dass sie in die zwei reservierten Zeilen passen.
-    s_tit = cfg["s_tit"]
-    l_tit = wrap(w["Titel"], F_IT, s_tit, tw)
-    while len(l_tit) > 2 and s_tit > cfg["s_tit"] * 0.7:
-        s_tit -= 0.5
-        l_tit = wrap(w["Titel"], F_IT, s_tit, tw)
-    l_tit = l_tit[:2]
-
-    l_ort = wrap(w["_ortjahr"], F_REG, cfg["s_ort"], tw)[:1]
-    l_tec = wrap(w["_technik"], F_REG, cfg["s_tec"], tw_lo)[:2]
+    art, s_art_z = einzeilig(w["Künstler:in"], F_BOLD, s_art, tw, tmin)
+    l_tit, s_tit = mehrzeilig(w["Titel"], F_IT, s_tit0, tw, 2, tmin)
+    ort, s_ort_z = einzeilig(w["_ortjahr"], F_REG, s_ort, tw, tmin)
+    l_tec, s_tec_z = mehrzeilig(w["_technik"], F_REG, s_tec, tw_lo, 2, tmin)
     det = " · ".join([z for z in [w["_masse"], w["_auflage"]] if z])
-    l_det = wrap(det, F_REG, cfg["s_tec"], tw_lo)[:1]
+    det, s_det_z = einzeilig(det, F_REG, s_tec, tw_lo, tmin)
 
     hint = ""
     if w["_status"] == "nicht verkäuflich":
         hint = "unverkäuflich"
     elif preishinweis:
         hint = "Preis siehe Werkliste"
+    hint, s_hint_z = einzeilig(hint, F_REG, s_hint, tw_lo, tmin)
 
     # --- zeichnen: festes Raster von oben ---------------------------------
     cy = y + bh - pad
@@ -451,39 +640,66 @@ def schild_zeichnen(c, x, y, bw, bh, w, cfg, preishinweis=True, statuspunkt=Fals
             cy -= lead - size * 0.92
         cy -= gap_after
 
-    block([w["_nr"]], F_BOLD, cfg["s_nr"], grau, cfg["s_nr"] * 1.2, 1, 3.0 * mm * g)
-    block(l_art, F_BOLD, cfg["s_art"], FARBEN["text"], cfg["s_art"] * 1.25, 1, 1.0 * mm * g)
-    block(l_tit, F_IT, s_tit, FARBEN["text"], cfg["s_tit"] * 1.22, 2, 1.0 * mm * g)
-    block(l_ort, F_REG, cfg["s_ort"], FARBEN["text"], cfg["s_ort"] * 1.3, 1, 2.2 * mm * g)
+    block([w["_nr"]], F_BOLD, s_nr, grau, s_nr * 1.2, 1, 3.0 * mm * g)
+    block([art], F_BOLD, s_art_z, FARBEN["text"], s_art * 1.25, 1, 1.0 * mm * g)
+    block(l_tit, F_IT, s_tit, FARBEN["text"], s_tit0 * 1.22, 2, 1.0 * mm * g)
+    block([ort], F_REG, s_ort_z, FARBEN["text"], s_ort * 1.3, 1, 2.2 * mm * g)
 
     c.setStrokeColorRGB(*FARBEN["linie"])
-    c.setLineWidth(0.5)
+    c.setLineWidth(max(0.25, 0.5 * f))
     c.line(x + pad, cy, x + pad + tw * 0.28, cy)
     cy -= 3.2 * mm * g
 
-    block(l_tec, F_REG, cfg["s_tec"], grau, cfg["s_tec"] * 1.34, 2)
-    block(l_det, F_REG, cfg["s_tec"], grau, cfg["s_tec"] * 1.34, 1, 3.5 * mm * g)
-    block([hint], F_REG, cfg["s_hint"], grau, cfg["s_hint"] * 1.2, 1)
+    block(l_tec, F_REG, s_tec_z, grau, s_tec * 1.34, 2)
+    block([det], F_REG, s_det_z, grau, s_tec * 1.34, 1, 3.5 * mm * g)
+    block([hint], F_REG, s_hint_z, grau, s_hint * 1.2, 1)
 
     if qr:
         qr_zeichnen(c, qr, x + bw - pad - qs, y + pad, qs)
 
     if statuspunkt and w["_status"] in ("verkauft", "reserviert"):
-        r = 1.7 * mm
+        r = 1.7 * mm * max(g, 1.0)
         c.setFillColorRGB(*(FARBEN["signal"] if w["_status"] == "verkauft"
                             else (0.95, 0.72, 0.10)))
-        py = y + pad + (qs + 2.5 * mm + r if qr else 0)
+        py = y + pad + (qs + 2.5 * mm * max(g, 1.0) + r if qr else 0)
         c.circle(x + bw - pad - r, py, r, stroke=0, fill=1)
 
     c.setFillColorRGB(0, 0, 0)
 
 
+def schild_hinweise(cfg):
+    """Zeilen für die Konsole: Größe, Anordnung, Anpassungen."""
+    bw, bh = cfg["w"], cfg["h"]
+    if cfg["blatt"]:
+        zeilen = [f"{bw / mm:.0f} × {bh / mm:.0f} mm, eine Karte pro Blatt (Blatt = Karte, "
+                  f"keine Schnittmarken)"]
+    else:
+        zeilen = [f"{bw / mm:.0f} × {bh / mm:.0f} mm, {cfg['cols']} × {cfg['rows']} = "
+                  f"{cfg['cols'] * cfg['rows']} je Bogen {seitenname(cfg['seite'])}"]
+        pw, ph = cfg["seite"]
+        if cfg["cols"] * bw > pw + 0.01 * mm or cfg["rows"] * bh > ph + 0.01 * mm:
+            zeilen.append("ACHTUNG: Raster ist größer als der Bogen — spalten/zeilen/bogen "
+                          "in design.json prüfen")
+    f = fit_faktor(cfg, bh)
+    if f < 0.995:
+        zeilen.append(f"Inhalt auf {f * 100:.0f} % verkleinert, damit das Raster ins Schild passt")
+        if f <= ANPASSUNG["inhalt_min_faktor"] + 1e-9:
+            zeilen.append("ACHTUNG: Untergrenze inhalt_min_faktor erreicht — Inhalt kann überlaufen")
+    kleinste = cfg["s_hint"] * f
+    if kleinste < 5:
+        zeilen.append(f"ACHTUNG: kleinste Schrift nur {kleinste:.1f} pt — nur bei hoher "
+                      f"Druckauflösung lesbar")
+    return zeilen
+
+
 def pdf_wandschilder(werke, pfad, format_="a8", preishinweis=True, statuspunkt=False,
                      marken=True, insta=None):
-    cfg = SCHILD[format_]
+    cfg = schild_cfg(format_)
     insta = insta or {}
     bw, bh, cols, rows = cfg["w"], cfg["h"], cfg["cols"], cfg["rows"]
     pw, ph = cfg["seite"]
+    if cfg["blatt"]:
+        marken = False
     mx = (pw - cols * bw) / 2
     my = (ph - rows * bh) / 2
 
@@ -539,27 +755,24 @@ def pdf_wandschilder(werke, pfad, format_="a8", preishinweis=True, statuspunkt=F
         png = qr_png(insta.get(str(w["Künstler:in"]).strip(), ""))
         schild_zeichnen(c, x, y, bw, bh, w, cfg, preishinweis, statuspunkt, qr=png)
     c.save()
-    return len(werke), (len(werke) + per - 1) // per
+    return len(werke), (len(werke) + per - 1) // per, schild_hinweise(cfg)
 
 
-# --------------------------------------------- Einzelkarte auf A3 (Sonderformat)
-# Für sehr große Wandbilder, bei denen ein A8/A7-Schild optisch untergeht.
-# Eine Karte pro A3-Blatt (quer), kein Deckblatt, keine Schnittmarken —
-# das Blatt selbst ist die Karte.
-SCHILD_A3 = dict(w=landscape(A3)[0], h=landscape(A3)[1], pad=26 * mm,
-                 s_nr=24, s_art=32, s_tit=40, s_ort=27, s_tec=22, s_hint=19,
-                 qr=38 * mm)
-
-
-def pdf_wandschild_a3(werk, pfad, preishinweis=True, statuspunkt=False, insta=None):
-    seite = landscape(A3)
+# --------------------------------------------- Einzelkarte (ein Schild pro Blatt)
+# Für sehr große Wandbilder, bei denen ein kleines Schild optisch untergeht.
+# Eine Karte pro Blatt in Kartengröße (z. B. A3 quer), kein Deckblatt, keine
+# Schnittmarken — das Blatt selbst ist die Karte.
+def pdf_wandschild_einzel(werk, pfad, format_="a3", preishinweis=True, statuspunkt=False,
+                          insta=None):
+    cfg = schild_cfg(format_)
+    seite = (cfg["w"], cfg["h"])
     c = canvas.Canvas(pfad, pagesize=seite)
-    c.setTitle(f"FOTOTAGE MUSTERSTADT 2026 — Wandschild Nr {werk['_nr']} (A3)")
+    c.setTitle(f"FOTOTAGE MUSTERSTADT 2026 — Wandschild Nr {werk['_nr']} ({format_.upper()})")
     png = qr_png((insta or {}).get(str(werk["Künstler:in"]).strip(), ""))
-    schild_zeichnen(c, 0, 0, seite[0], seite[1], werk, SCHILD_A3,
+    schild_zeichnen(c, 0, 0, seite[0], seite[1], werk, cfg,
                     preishinweis, statuspunkt, qr=png)
     c.save()
-
+    return schild_hinweise(dict(cfg, blatt=True))
 
 # ----------------------------------------------------------------- 02 Werkliste
 def preis_text(w):
@@ -1255,9 +1468,12 @@ def zeichne_deckblatt(c, name, unterzeile, beschreibung, intern=False):
 # ----------------------------------------------------------------- main
 def main():
     ap = argparse.ArgumentParser(description="FOTOTAGE MUSTERSTADT 2026 — Druckdaten-Generator")
-    ap.add_argument("--xlsx", default=P.output("FUB2026_Werkdaten_MASTER.xlsx"))
+    ap.add_argument("--xlsx", default=P.output("Werkdaten_MASTER.xlsx"))
     ap.add_argument("--out", default=P.output("ausgabe"))
-    ap.add_argument("--schildformat", choices=["a8", "a7", "a6"], default="a8")
+    ap.add_argument("--schildformat", type=str.lower, choices=FORMATE, default="a8",
+                    help="DIN-A-Format der Wandschilder, a0 … a10 (quer); Standard a8. "
+                         "Anordnung und Schriftgrößen ergeben sich automatisch, "
+                         "Feinjustierung in design.json")
     ap.add_argument("--gruppierung", choices=["ohne", "Wand", "Künstler:in"], default="ohne")
     ap.add_argument("--spalten", type=int, choices=[1, 2], default=2)
     ap.add_argument("--ohne-preishinweis", action="store_true")
@@ -1276,10 +1492,13 @@ def main():
                     help="auch bei unvollständigen Daten drucken")
     ap.add_argument("--mit-beispielen", action="store_true",
                     help="die 14 Beispielwerke immer mitdrucken, auch wenn schon echte Werke da sind")
-    ap.add_argument("--einzelkarte-a3", metavar="NR",
-                    help="nur ein Wandschild (Werknummer, z. B. 070) groß auf A3 erzeugen — "
+    ap.add_argument("--einzelkarte", metavar="NR",
+                    help="nur ein Wandschild (Werknummer, z. B. 070) im gewählten "
+                         "--schildformat erzeugen, eine Karte pro Blatt in Kartengröße — "
                          "für sehr große Wandbilder; separate Datei, ändert die "
                          "übrigen Ausgaben nicht")
+    ap.add_argument("--einzelkarte-a3", metavar="NR",
+                    help="Kurzform für: --einzelkarte NR --schildformat a3")
     args = ap.parse_args()
 
     font = register_fonts()
@@ -1320,17 +1539,23 @@ def main():
     teiln = lade_teilnehmende(args.xlsx)
 
     if args.einzelkarte_a3:
-        nr = args.einzelkarte_a3.strip().zfill(3)
+        args.einzelkarte, args.schildformat = args.einzelkarte_a3, "a3"
+    if args.einzelkarte:
+        nr = args.einzelkarte.strip().zfill(3)
         treffer = [w for w in werke_alle if w["_nr"] == nr]
         if not treffer:
             sys.exit(f"FEHLER: keine Werk-Nr „{nr}“ gefunden.")
         w = treffer[0]
         name = str(w["Künstler:in"]).strip().replace(" ", "")
         os.makedirs(args.out, exist_ok=True)
-        pfad = os.path.join(args.out, f"01_Wandschild_A3_Nr{nr}_{name}.pdf")
-        pdf_wandschild_a3(w, pfad, preishinweis=not args.ohne_preishinweis,
-                          statuspunkt=args.statuspunkte, insta=insta)
-        print(f"{os.path.basename(pfad)}   Nr {nr} „{w['Titel']}“ ({w['Künstler:in']}), A3 quer")
+        fmt = args.schildformat
+        pfad = os.path.join(args.out, f"01_Wandschild_{fmt.upper()}_Nr{nr}_{name}.pdf")
+        hinweise = pdf_wandschild_einzel(w, pfad, fmt, preishinweis=not args.ohne_preishinweis,
+                                         statuspunkt=args.statuspunkte, insta=insta)
+        print(f"{os.path.basename(pfad)}   Nr {nr} „{w['Titel']}“ ({w['Künstler:in']}), "
+              f"{fmt.upper()} quer")
+        for h in hinweise:
+            print(f"    {h}")
         return
 
     probleme = pruefe(werke)
@@ -1356,7 +1581,7 @@ def main():
     tun = args.nur
 
     if tun in ("alle", "wandschilder"):
-        n, boegen = pdf_wandschilder(
+        n, boegen, hinweise = pdf_wandschilder(
             werke, os.path.join(o, "01_Wandschilder.pdf"), args.schildformat,
             preishinweis=not args.ohne_preishinweis, statuspunkt=args.statuspunkte,
             marken=not args.ohne_schnittmarken, insta=insta)
@@ -1364,6 +1589,8 @@ def main():
         print(f"01_Wandschilder.pdf        {n} Schilder auf {boegen} Bogen "
               f"({args.schildformat.upper()})"
               + (f", QR auf {qn}" if insta else ", ohne QR"))
+        for h in hinweise:
+            print(f"    {h}")
 
     if tun in ("alle", "werkliste"):
         s = pdf_werkliste(werke, os.path.join(o, "02_Werkliste.pdf"),

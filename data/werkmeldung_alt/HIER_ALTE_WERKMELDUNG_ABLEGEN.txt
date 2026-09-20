@@ -1,20 +1,24 @@
-Hier die schon ausgefüllte Werkmeldung von Google Drive ablegen
-==============================================================
+Hier die schon ausgefüllte Werkmeldung ablegen
+==============================================
 
-Wenn an FUB2026_Werkmeldung_VORLAGE.xlsx noch etwas geändert wurde,
-NACHDEM die Datei schon geteilt und von Teilnehmenden ausgefüllt wurde:
+Wenn an Werkmeldung_VORLAGE.xlsx noch etwas geändert wurde,
+NACHDEM die Datei schon weitergegeben und von Teilnehmenden ausgefüllt wurde:
 
-  1. In Google Drive:  Datei > Herunterladen > Microsoft Excel (.xlsx)
-  2. Die heruntergeladene Datei HIER in diesen Ordner legen
+  1. Die ausgefüllte Datei als Excel (.xlsx) exportieren.
+  2. Die Datei HIER in diesen Ordner legen
      (Name egal, Hauptsache eine einzige .xlsx).
   3. Im Projektordner:
 
-       ./.venv/bin/python build_werkmeldung.py            # frische Vorlage
-       ./.venv/bin/python migrate_werkmeldung.py --probe  # erst zeigen
-       ./.venv/bin/python migrate_werkmeldung.py          # dann schreiben
+       ./.venv/bin/python scripts/build_werkmeldung.py            # frische Vorlage
+       ./.venv/bin/python scripts/migrate_werkmeldung.py --probe  # erst zeigen
+       ./.venv/bin/python scripts/migrate_werkmeldung.py          # dann schreiben
 
-  4. FUB2026_Werkmeldung_UEBERTRAGEN.xlsx prüfen, auf Google Drive
-     hochladen und die alte Datei ersetzen.
+  4. output/Werkmeldung_UEBERTRAGEN.xlsx prüfen, als neue gemeinsame Datei
+     bereitstellen und die alte Datei ersetzen.
 
 Während des Umstiegs darf niemand mehr in der alten Datei tippen.
 Diese Textdatei wird ignoriert.
+
+Zum Ausprobieren liegt eine fertig ausgefüllte Beispieldatei in
+data/beispiele/Werkmeldung_BEISPIEL.xlsx (Aufruf dort:
+migrate_werkmeldung.py --alt data/beispiele/Werkmeldung_BEISPIEL.xlsx --probe).
